@@ -16,13 +16,33 @@
 				}
 			},
 			{
-				"name": "raw_to_bronze_to_silver",
+				"name": "bronze_to_silver",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "raw_to_bronze",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "bronze_to_silver",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "raw_to_bronze",
 				"type": "ExecutePipeline",
 				"dependsOn": [],
 				"userProperties": [],
 				"typeProperties": {
 					"pipeline": {
-						"referenceName": "raw_to_bronze_to_silver",
+						"referenceName": "raw_to_bronze",
 						"type": "PipelineReference"
 					},
 					"waitOnCompletion": true
