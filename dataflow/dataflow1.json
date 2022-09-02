@@ -23,9 +23,9 @@
 				"     ),",
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
+				"     limit: 1,",
 				"     ignoreNoFilesFound: false,",
-				"     documentForm: 'arrayOfDocuments',",
-				"     wildcardPaths:[(concat($folderName, '/*.json'))]) ~> source1"
+				"     documentForm: 'arrayOfDocuments') ~> source1"
 			]
 		}
 	}
