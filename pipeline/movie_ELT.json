@@ -8,10 +8,6 @@
 				"dependsOn": [],
 				"userProperties": [],
 				"typeProperties": {
-					"pipeline": {
-						"referenceName": "quarantined_bronze_silver",
-						"type": "PipelineReference"
-					},
 					"waitOnCompletion": true
 				}
 			},
