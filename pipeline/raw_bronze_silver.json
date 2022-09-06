@@ -1,5 +1,5 @@
 {
-	"name": "raw_to_bronze",
+	"name": "raw_bronze_silver",
 	"properties": {
 		"activities": [
 			{
