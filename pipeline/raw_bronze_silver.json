@@ -20,10 +20,19 @@
 						"type": "DataFlowReference",
 						"datasetParameters": {
 							"source1": {
-								"folderName": "jsonmovies"
+								"containerName": "jsonmovies"
 							},
 							"sink1": {
-								"folderName": "parquetmovies/movie_bronze_parquet"
+								"containerName": "parquetmovies",
+								"directoryName": "movie_bronze_parquet"
+							}
+						},
+						"linkedServiceParameters": {
+							"sink1": {
+								"schemaLinkedService": {
+									"containerName": "parquetmovies",
+									"directoryName": "movie_bronze_parquet"
+								}
 							}
 						}
 					},
