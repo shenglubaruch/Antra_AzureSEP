@@ -1,5 +1,5 @@
 {
-	"name": "raw_bronze_silver",
+	"name": "pl_raw_to_bronze",
 	"properties": {
 		"activities": [
 			{
@@ -19,20 +19,12 @@
 						"referenceName": "dataflow_r2b",
 						"type": "DataFlowReference",
 						"datasetParameters": {
-							"source1": {
+							"raw": {
 								"containerName": "jsonmovies"
 							},
 							"sink1": {
 								"containerName": "parquetmovies",
 								"directoryName": "movie_bronze_parquet"
-							}
-						},
-						"linkedServiceParameters": {
-							"sink1": {
-								"schemaLinkedService": {
-									"containerName": "parquetmovies",
-									"directoryName": "movie_bronze_parquet"
-								}
 							}
 						}
 					},

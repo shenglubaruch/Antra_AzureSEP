@@ -9,7 +9,7 @@
 						"referenceName": "ds_movie_raw_json",
 						"type": "DatasetReference"
 					},
-					"name": "source1"
+					"name": "raw"
 				}
 			],
 			"sinks": [
@@ -23,7 +23,7 @@
 			],
 			"transformations": [
 				{
-					"name": "derivedColumn1"
+					"name": "addMetadata"
 				}
 			],
 			"scriptLines": [
@@ -34,11 +34,11 @@
 				"     validateSchema: false,",
 				"     limit: 100,",
 				"     ignoreNoFilesFound: false,",
-				"     documentForm: 'arrayOfDocuments') ~> source1",
-				"source1 derive(Status = 'New',",
+				"     documentForm: 'arrayOfDocuments') ~> raw",
+				"raw derive(Status = 'New',",
 				"          ingestTime = currentTimestamp(),",
-				"          ingestDate = dayOfMonth(currentTimestamp())) ~> derivedColumn1",
-				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"          ingestDate = dayOfMonth(currentTimestamp())) ~> addMetadata",
+				"addMetadata sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'parquet',",
 				"     umask: 0022,",
