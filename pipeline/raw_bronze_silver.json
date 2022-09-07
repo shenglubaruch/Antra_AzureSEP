@@ -23,7 +23,7 @@
 								"folderName": "jsonmovies"
 							},
 							"sink1": {
-								"folderName": "parquetmovies"
+								"folderName": "parquetmovies/movie_bronze_parquet"
 							}
 						}
 					},
