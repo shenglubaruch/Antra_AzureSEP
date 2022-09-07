@@ -1,5 +1,5 @@
 {
-	"name": "outputParquet",
+	"name": "outputParquet_bronze",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "AzureDataLakeStorage1",

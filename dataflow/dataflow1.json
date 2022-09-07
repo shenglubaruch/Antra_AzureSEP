@@ -6,22 +6,24 @@
 			"sources": [
 				{
 					"dataset": {
-						"referenceName": "inputJson",
+						"referenceName": "inputJson_raw",
 						"type": "DatasetReference"
 					},
 					"name": "source1"
 				}
 			],
-			"sinks": [],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "outputParquet_bronze",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
 			"transformations": [
 				{
-					"name": "flatten1"
-				},
-				{
 					"name": "derivedColumn1"
-				},
-				{
-					"name": "flatten2"
 				}
 			],
 			"scriptLines": [
@@ -30,44 +32,22 @@
 				"     ),",
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
+				"     limit: 100,",
 				"     ignoreNoFilesFound: false,",
 				"     documentForm: 'arrayOfDocuments') ~> source1",
-				"derivedColumn1 foldDown(unroll(Movie, movie),",
-				"     mapColumn(",
-				"          Id = derivedColumn1@Movie.Id,",
-				"          Title = derivedColumn1@Movie.Title,",
-				"          Overview = derivedColumn1@Movie.Overview,",
-				"          OriginalLanguage = movie.OriginalLanguage,",
-				"          Price = movie.Price,",
-				"          ReleaseDate = movie.ReleaseDate,",
-				"          Budget = movie.Budget,",
-				"          Revenue = movie.Revenue,",
-				"          RunTime = movie.RunTime,",
-				"          Tagline = movie.Tagline,",
-				"          TmdbUrl = movie.TmdbUrl,",
-				"          PosterUrl = movie.PosterUrl,",
-				"          BackdropUrl = movie.BackdropUrl,",
-				"          CreatedDate = movie.CreatedDate,",
-				"          CreatedBy = movie.CreatedBy,",
-				"          UpdatedDate = movie.UpdatedDate,",
-				"          UpdatedBy = movie.UpdatedBy,",
-				"          Status,",
-				"          ingestTime,",
-				"          ingestDate",
-				"     ),",
-				"     skipDuplicateMapInputs: false,",
-				"     skipDuplicateMapOutputs: false) ~> flatten1",
-				"flatten2 derive(movie = movie,",
-				"          Movie = movie,",
+				"source1 derive(movie = movie,",
 				"          Status = 'New',",
 				"          ingestTime = currentTimestamp(),",
 				"          ingestDate = currentDate()) ~> derivedColumn1",
-				"source1 foldDown(unroll(movie),",
-				"     mapColumn(",
-				"          movie",
-				"     ),",
-				"     skipDuplicateMapInputs: false,",
-				"     skipDuplicateMapOutputs: false) ~> flatten2"
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'parquet',",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     saveOrder: 1) ~> sink1"
 			]
 		}
 	}
