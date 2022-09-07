@@ -3,16 +3,36 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "rawtobronze",
-				"type": "ExecutePipeline",
+				"name": "dataflow_r2b",
+				"type": "ExecuteDataFlow",
 				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
 				"userProperties": [],
 				"typeProperties": {
-					"pipeline": {
-						"referenceName": "rawtobronze",
-						"type": "PipelineReference"
+					"dataflow": {
+						"referenceName": "dataflow_r2b",
+						"type": "DataFlowReference",
+						"datasetParameters": {
+							"source1": {
+								"folderName": "jsonmovies"
+							},
+							"sink1": {
+								"folderName": "parquetmovies",
+								"fileName": "movies_bronze_parquet.parquet"
+							}
+						}
 					},
-					"waitOnCompletion": true
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
 				}
 			}
 		],

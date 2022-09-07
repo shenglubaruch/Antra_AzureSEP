@@ -1,12 +1,12 @@
 {
-	"name": "dataflow1",
+	"name": "dataflow_r2b",
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {
 			"sources": [
 				{
 					"dataset": {
-						"referenceName": "inputJson_raw",
+						"referenceName": "ds_movie_raw_json",
 						"type": "DatasetReference"
 					},
 					"name": "source1"
@@ -15,14 +15,10 @@
 			"sinks": [
 				{
 					"dataset": {
-						"referenceName": "outputParquet_bronze",
+						"referenceName": "ds_movie_bronze_parquet",
 						"type": "DatasetReference"
 					},
-					"name": "sink1",
-					"rejectedDataLinkedService": {
-						"referenceName": "AzureDataLakeStorage1",
-						"type": "LinkedServiceReference"
-					}
+					"name": "sink1"
 				}
 			],
 			"transformations": [
@@ -39,10 +35,9 @@
 				"     limit: 100,",
 				"     ignoreNoFilesFound: false,",
 				"     documentForm: 'arrayOfDocuments') ~> source1",
-				"source1 derive(movie = movie,",
-				"          Status = 'New',",
+				"source1 derive(Status = 'New',",
 				"          ingestTime = currentTimestamp(),",
-				"          ingestDate = currentDate()) ~> derivedColumn1",
+				"          ingestDate = dayOfMonth(currentTimestamp())) ~> derivedColumn1",
 				"derivedColumn1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'parquet',",
@@ -50,8 +45,7 @@
 				"     preCommands: [],",
 				"     postCommands: [],",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true,",
-				"     saveOrder: 1) ~> sink1"
+				"     skipDuplicateMapOutputs: true) ~> sink1"
 			]
 		}
 	}

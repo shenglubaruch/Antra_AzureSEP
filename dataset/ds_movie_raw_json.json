@@ -1,5 +1,5 @@
 {
-	"name": "inputJson_raw",
+	"name": "ds_movie_raw_json",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "AzureDataLakeStorage1",
