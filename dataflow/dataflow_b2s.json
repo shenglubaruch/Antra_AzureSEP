@@ -12,7 +12,15 @@
 					"name": "bronzeParquet"
 				}
 			],
-			"sinks": [],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_movie_bronze_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
 			"transformations": [
 				{
 					"name": "flatten1"
@@ -22,6 +30,15 @@
 				},
 				{
 					"name": "split1"
+				},
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "derivedColumn2"
+				},
+				{
+					"name": "union1"
 				}
 			],
 			"scriptLines": [
@@ -64,7 +81,18 @@
 				"     skipDuplicateMapOutputs: false) ~> flatten1",
 				"flatten1 filter(Status=='New') ~> filter1",
 				"filter1 split(RunTime>=0,",
-				"     disjoint: false) ~> split1@(runtimePostive, runtimeNegative)"
+				"     disjoint: false) ~> split1@(runtimePostive, runtimeNegative)",
+				"split1@runtimePostive derive(Status = 'Loaded') ~> derivedColumn1",
+				"split1@runtimeNegative derive(Status = 'Quarantined') ~> derivedColumn2",
+				"derivedColumn1, derivedColumn2 union(byName: true)~> union1",
+				"union1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'parquet',",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sink1"
 			]
 		}
 	}
