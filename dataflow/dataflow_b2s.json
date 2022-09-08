@@ -16,17 +16,55 @@
 			"transformations": [
 				{
 					"name": "flatten1"
+				},
+				{
+					"name": "filter1"
+				},
+				{
+					"name": "split1"
 				}
 			],
 			"scriptLines": [
-				"source(allowSchemaDrift: true,",
+				"source(output(",
+				"          movie as (Id as integer, Title as string, Overview as string, Tagline as string, Budget as double, Revenue as double, ImdbUrl as string, TmdbUrl as string, PosterUrl as string, BackdropUrl as string, OriginalLanguage as string, ReleaseDate as string, RunTime as integer, Price as double, CreatedDate as string, UpdatedDate as string, UpdatedBy as string, CreatedBy as string, genres as (id as integer, name as string)[])[],",
+				"          Status as string,",
+				"          ingestTime as timestamp,",
+				"          ingestDate as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     limit: 100,",
 				"     ignoreNoFilesFound: false,",
 				"     format: 'parquet') ~> bronzeParquet",
-				"bronzeParquet foldDown(unroll(),",
+				"bronzeParquet foldDown(unroll(movie),",
+				"     mapColumn(",
+				"          Id = movie.Id,",
+				"          Title = movie.Title,",
+				"          Overview = movie.Overview,",
+				"          OriginalLanguage = movie.OriginalLanguage,",
+				"          Price = movie.Price,",
+				"          ReleaseDate = movie.ReleaseDate,",
+				"          Budget = movie.Budget,",
+				"          Revenue = movie.Revenue,",
+				"          RunTime = movie.RunTime,",
+				"          Tagline = movie.Tagline,",
+				"          ImdbUrl = movie.ImdbUrl,",
+				"          TmdbUrl = movie.TmdbUrl,",
+				"          PosterUrl = movie.PosterUrl,",
+				"          BackdropUrl = movie.BackdropUrl,",
+				"          CreatedDate = movie.CreatedDate,",
+				"          CreatedBy = movie.CreatedBy,",
+				"          UpdatedDate = movie.UpdatedDate,",
+				"          UpdatedBy = movie.UpdatedBy,",
+				"          Status,",
+				"          ingestTime,",
+				"          ingestDate",
+				"     ),",
 				"     skipDuplicateMapInputs: false,",
-				"     skipDuplicateMapOutputs: false) ~> flatten1"
+				"     skipDuplicateMapOutputs: false) ~> flatten1",
+				"flatten1 filter(Status=='New') ~> filter1",
+				"filter1 split(RunTime>=0,",
+				"     disjoint: false) ~> split1@(runtimePostive, runtimeNegative)"
 			]
 		}
 	}
