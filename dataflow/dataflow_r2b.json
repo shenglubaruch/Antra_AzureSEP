@@ -18,7 +18,7 @@
 						"referenceName": "ds_movie_bronze_parquet",
 						"type": "DatasetReference"
 					},
-					"name": "sink1"
+					"name": "bronze"
 				}
 			],
 			"transformations": [
@@ -71,7 +71,7 @@
 				"     preCommands: [],",
 				"     postCommands: [],",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> sink1"
+				"     skipDuplicateMapOutputs: true) ~> bronze"
 			]
 		}
 	}
