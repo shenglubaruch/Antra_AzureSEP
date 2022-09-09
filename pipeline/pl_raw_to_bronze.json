@@ -21,10 +21,6 @@
 						"datasetParameters": {
 							"raw": {
 								"containerName": "jsonmovies"
-							},
-							"sink1": {
-								"containerName": "parquetmovies",
-								"directoryName": "movie_bronze_parquet"
 							}
 						}
 					},
