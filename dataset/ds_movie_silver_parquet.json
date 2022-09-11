@@ -7,10 +7,12 @@
 		},
 		"parameters": {
 			"containerName": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": "parquetmovies"
 			},
 			"directoryName": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": "movie_silver_parquet"
 			}
 		},
 		"annotations": [],

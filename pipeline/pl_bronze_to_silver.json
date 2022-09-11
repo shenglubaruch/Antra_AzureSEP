@@ -30,6 +30,10 @@
 							"bronzeUpdate": {
 								"containerName": "parquetmovies",
 								"directoryName": "movie_bronze_parquet"
+							},
+							"genresSilver": {
+								"containerName": "parquetmovies",
+								"directoryName": "genre_silver_parquet"
 							}
 						},
 						"linkedServiceParameters": {

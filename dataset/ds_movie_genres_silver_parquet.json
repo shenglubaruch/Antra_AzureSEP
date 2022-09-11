@@ -1,5 +1,5 @@
 {
-	"name": "ds_movie_bronze_parquet",
+	"name": "ds_movie_genres_silver_parquet",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "AzureDataLakeStorage1",
@@ -12,7 +12,7 @@
 			},
 			"directoryName": {
 				"type": "string",
-				"defaultValue": "movie_bronze_parquet"
+				"defaultValue": "movie_genres_silver_parquet"
 			}
 		},
 		"annotations": [],

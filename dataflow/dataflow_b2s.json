@@ -26,26 +26,74 @@
 						"type": "DatasetReference"
 					},
 					"name": "bronzeUpdate"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_orilanguage_silver_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "languageSilver"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_genre_silver_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "genresSilver"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_movie_genres_silver_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "sinkJunctionMoviesGenres"
 				}
 			],
 			"transformations": [
 				{
-					"name": "filter1"
+					"name": "filterStatusNew"
 				},
 				{
 					"name": "split1"
 				},
 				{
-					"name": "derivedColumn1"
+					"name": "changeStatusPostive"
 				},
 				{
-					"name": "derivedColumn2"
+					"name": "changeStatusNegative"
 				},
 				{
-					"name": "union1"
+					"name": "unionPN"
 				},
 				{
-					"name": "select1"
+					"name": "selectSilver"
+				},
+				{
+					"name": "selectLangague"
+				},
+				{
+					"name": "aggregateLanguage"
+				},
+				{
+					"name": "surrogateKey1"
+				},
+				{
+					"name": "flattenGenres"
+				},
+				{
+					"name": "aggrGenres"
+				},
+				{
+					"name": "selectGenres"
+				},
+				{
+					"name": "selectJunction"
+				},
+				{
+					"name": "flattenJunction"
+				},
+				{
+					"name": "junctionMoviesGenres"
 				}
 			],
 			"scriptLines": [
@@ -68,6 +116,7 @@
 				"          CreatedBy as string,",
 				"          UpdatedDate as string,",
 				"          UpdatedBy as string,",
+				"          genres as (id as short, name as string)[],",
 				"          Status as string,",
 				"          ingestTime as timestamp,",
 				"          ingestDate as integer",
@@ -77,13 +126,13 @@
 				"     limit: 100,",
 				"     ignoreNoFilesFound: false,",
 				"     format: 'parquet') ~> bronzeParquet",
-				"bronzeParquet filter(Status=='New') ~> filter1",
-				"filter1 split(RunTime>=0,",
+				"bronzeParquet filter(Status=='New') ~> filterStatusNew",
+				"filterStatusNew split(RunTime>=0,",
 				"     disjoint: false) ~> split1@(runtimePostive, runtimeNegative)",
-				"split1@runtimePostive derive(Status = 'Loaded') ~> derivedColumn1",
-				"split1@runtimeNegative derive(Status = 'Quarantined') ~> derivedColumn2",
-				"derivedColumn1, derivedColumn2 union(byName: true)~> union1",
-				"derivedColumn1 select(mapColumn(",
+				"split1@runtimePostive derive(Status = 'Loaded') ~> changeStatusPostive",
+				"split1@runtimeNegative derive(Status = 'Quarantined') ~> changeStatusNegative",
+				"changeStatusPostive, changeStatusNegative union(byName: true)~> unionPN",
+				"changeStatusPostive select(mapColumn(",
 				"          Id,",
 				"          Title,",
 				"          Overview,",
@@ -104,8 +153,52 @@
 				"          UpdatedBy",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> select1",
-				"select1 sink(allowSchemaDrift: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectSilver",
+				"bronzeParquet select(mapColumn(",
+				"          OriginalLanguage",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectLangague",
+				"selectLangague aggregate(groupBy(OriginalLanguage),",
+				"     each(match(name!='OriginalLanguage'), $$ = first($$))) ~> aggregateLanguage",
+				"aggregateLanguage keyGenerate(output(LanguageCode as long),",
+				"     startAt: 1L,",
+				"     stepValue: 1L) ~> surrogateKey1",
+				"selectGenres foldDown(unroll(genres),",
+				"     mapColumn(",
+				"          genres_id = genres.id,",
+				"          name = genres.name",
+				"     ),",
+				"     skipDuplicateMapInputs: false,",
+				"     skipDuplicateMapOutputs: false) ~> flattenGenres",
+				"flattenGenres aggregate(groupBy(name),",
+				"     each(match(name!='name'), $$ = first($$))) ~> aggrGenres",
+				"bronzeParquet select(mapColumn(",
+				"          genres = genres",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectGenres",
+				"bronzeParquet select(mapColumn(",
+				"          Id,",
+				"          genres",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectJunction",
+				"selectJunction foldDown(unroll(genres),",
+				"     mapColumn(",
+				"          Id,",
+				"          genres_id = genres.id,",
+				"          name = genres.name",
+				"     ),",
+				"     skipDuplicateMapInputs: false,",
+				"     skipDuplicateMapOutputs: false) ~> flattenJunction",
+				"flattenJunction select(mapColumn(",
+				"          movie_Id = Id,",
+				"          genres_Id = genres_id",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> junctionMoviesGenres",
+				"selectSilver sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'parquet',",
 				"     umask: 0022,",
@@ -113,14 +206,38 @@
 				"     postCommands: [],",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> cleanSilver",
-				"union1 sink(allowSchemaDrift: true,",
+				"unionPN sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'parquet',",
 				"     umask: 0022,",
 				"     preCommands: [],",
 				"     postCommands: [],",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> bronzeUpdate"
+				"     skipDuplicateMapOutputs: true) ~> bronzeUpdate",
+				"surrogateKey1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'parquet',",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> languageSilver",
+				"aggrGenres sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'parquet',",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> genresSilver",
+				"junctionMoviesGenres sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'parquet',",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sinkJunctionMoviesGenres"
 			]
 		}
 	}
