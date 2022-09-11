@@ -12,10 +12,28 @@
 					"name": "bronzeParquet"
 				}
 			],
-			"sinks": [],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_movie_bronze_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "bronzeUpdate"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_movie_silver_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "silverInsert"
+				}
+			],
 			"transformations": [
 				{
-					"name": "filter1"
+					"name": "alterRow1"
+				},
+				{
+					"name": "derivedColumn1"
 				}
 			],
 			"scriptLines": [
@@ -46,7 +64,24 @@
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false,",
 				"     format: 'parquet') ~> bronzeParquet",
-				"bronzeParquet filter(Status == 'Quarantined') ~> filter1"
+				"bronzeParquet alterRow(updateIf(Status == 'Quarantined')) ~> alterRow1",
+				"alterRow1 derive(RunTime = abs(RunTime)) ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'parquet',",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> bronzeUpdate",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'parquet',",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> silverInsert"
 			]
 		}
 	}

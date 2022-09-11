@@ -22,10 +22,10 @@
 				},
 				{
 					"dataset": {
-						"referenceName": "ds_movie_silver_parquet",
+						"referenceName": "ds_movie_bronze_parquet",
 						"type": "DatasetReference"
 					},
-					"name": "sink1"
+					"name": "bronzeUpdate"
 				}
 			],
 			"transformations": [
@@ -120,7 +120,7 @@
 				"     preCommands: [],",
 				"     postCommands: [],",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> sink1"
+				"     skipDuplicateMapOutputs: true) ~> bronzeUpdate"
 			]
 		}
 	}
