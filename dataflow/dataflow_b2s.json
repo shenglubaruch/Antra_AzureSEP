@@ -1,6 +1,9 @@
 {
 	"name": "dataflow_b2s",
 	"properties": {
+		"folder": {
+			"name": "dataflow_movie"
+		},
 		"type": "MappingDataFlow",
 		"typeProperties": {
 			"sources": [
@@ -174,7 +177,7 @@
 				"flattenGenres aggregate(groupBy(name),",
 				"     each(match(name!='name'), $$ = first($$))) ~> aggrGenres",
 				"bronzeParquet select(mapColumn(",
-				"          genres = genres",
+				"          genres",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> selectGenres",

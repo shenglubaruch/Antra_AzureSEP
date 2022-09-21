@@ -1,6 +1,9 @@
 {
 	"name": "dataflow_repair",
 	"properties": {
+		"folder": {
+			"name": "dataflow_movie"
+		},
 		"type": "MappingDataFlow",
 		"typeProperties": {
 			"sources": [
@@ -64,7 +67,7 @@
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false,",
 				"     format: 'parquet') ~> bronzeParquet",
-				"bronzeParquet alterRow(updateIf(Status == 'Quarantined')) ~> alterRow1",
+				"bronzeParquet alterRow(updateIf(Status=='Quarantined')) ~> alterRow1",
 				"alterRow1 derive(RunTime = abs(RunTime)) ~> derivedColumn1",
 				"derivedColumn1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",

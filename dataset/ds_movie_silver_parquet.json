@@ -15,6 +15,9 @@
 				"defaultValue": "movie_silver_parquet"
 			}
 		},
+		"folder": {
+			"name": "ds_movie"
+		},
 		"annotations": [],
 		"type": "Parquet",
 		"typeProperties": {

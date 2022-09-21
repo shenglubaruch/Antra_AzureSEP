@@ -11,6 +11,9 @@
 				"defaultValue": "jsonmovies"
 			}
 		},
+		"folder": {
+			"name": "ds_movie"
+		},
 		"annotations": [],
 		"type": "Json",
 		"typeProperties": {

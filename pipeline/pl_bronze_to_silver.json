@@ -98,6 +98,9 @@
 				}
 			}
 		],
+		"folder": {
+			"name": "pl_movie"
+		},
 		"annotations": []
 	}
 }

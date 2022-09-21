@@ -1,6 +1,9 @@
 {
 	"name": "dataflow_r2b",
 	"properties": {
+		"folder": {
+			"name": "dataflow_movie"
+		},
 		"type": "MappingDataFlow",
 		"typeProperties": {
 			"sources": [
