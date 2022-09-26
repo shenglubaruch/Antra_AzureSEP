@@ -1,0 +1,61 @@
+{
+	"name": "dataflow1",
+	"properties": {
+		"folder": {
+			"name": "dataflow_wwi"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_wwi_customers",
+						"type": "DatasetReference"
+					},
+					"name": "dsWwiCustomers"
+				}
+			],
+			"sinks": [],
+			"transformations": [],
+			"scriptLines": [
+				"source(output(",
+				"          CustomerID as integer,",
+				"          CustomerName as string,",
+				"          BillToCustomerID as integer,",
+				"          CustomerCategoryID as integer,",
+				"          BuyingGroupID as integer,",
+				"          PrimaryContactPersonID as integer,",
+				"          AlternateContactPersonID as integer,",
+				"          DeliveryMethodID as integer,",
+				"          DeliveryCityID as integer,",
+				"          PostalCityID as integer,",
+				"          CreditLimit as decimal(18,2),",
+				"          AccountOpenedDate as date,",
+				"          StandardDiscountPercentage as decimal(18,3),",
+				"          IsStatementSent as boolean,",
+				"          IsOnCreditHold as boolean,",
+				"          PaymentDays as integer,",
+				"          PhoneNumber as string,",
+				"          FaxNumber as string,",
+				"          DeliveryRun as string,",
+				"          RunPosition as string,",
+				"          WebsiteURL as string,",
+				"          DeliveryAddressLine1 as string,",
+				"          DeliveryAddressLine2 as string,",
+				"          DeliveryPostalCode as string,",
+				"          DeliveryLocation as binary,",
+				"          PostalAddressLine1 as string,",
+				"          PostalAddressLine2 as string,",
+				"          PostalPostalCode as string,",
+				"          LastEditedBy as integer,",
+				"          ValidFrom as timestamp,",
+				"          ValidTo as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> dsWwiCustomers"
+			]
+		}
+	}
+}
