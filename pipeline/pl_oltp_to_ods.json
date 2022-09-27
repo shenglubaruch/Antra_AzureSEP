@@ -31,7 +31,8 @@
 								"dataset": {
 									"referenceName": "ds_wwi_watermarkTable",
 									"type": "DatasetReference"
-								}
+								},
+								"firstRowOnly": true
 							}
 						},
 						{
@@ -80,6 +81,11 @@
 				}
 			}
 		],
+		"variables": {
+			"tableName": {
+				"type": "String"
+			}
+		},
 		"folder": {
 			"name": "pl_wwi"
 		},
