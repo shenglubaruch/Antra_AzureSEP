@@ -65,7 +65,10 @@
 							"typeProperties": {
 								"source": {
 									"type": "SqlServerSource",
-									"sqlReaderQuery": "select MAX(@{item().WaterMark_Column}) as NewWatermarkvalue from @{item().TABLE_NAME}",
+									"sqlReaderQuery": {
+										"value": "select MAX(@{item().WaterMark_Column}) as NewWatermarkvalue from @{item().TABLE_NAME}",
+										"type": "Expression"
+									},
 									"queryTimeout": "02:00:00",
 									"partitionOption": "None"
 								},
