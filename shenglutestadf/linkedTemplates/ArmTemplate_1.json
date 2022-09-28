@@ -607,7 +607,7 @@
 						"userProperties": [],
 						"typeProperties": {
 							"items": {
-								"value": "@activity('Lookup_tableList').output",
+								"value": "@activity('Lookup_tableList').output.value",
 								"type": "Expression"
 							},
 							"activities": [
