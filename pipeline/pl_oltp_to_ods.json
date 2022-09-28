@@ -228,11 +228,6 @@
 				}
 			}
 		],
-		"variables": {
-			"tableName": {
-				"type": "String"
-			}
-		},
 		"folder": {
 			"name": "pl_wwi"
 		},
