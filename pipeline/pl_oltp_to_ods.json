@@ -140,7 +140,7 @@
 									"type": "DatasetReference",
 									"parameters": {
 										"SinkTableName": {
-											"value": "@{item().TABLE_NAME}",
+											"value": "@{item().SinkTableName}",
 											"type": "Expression"
 										}
 									}
