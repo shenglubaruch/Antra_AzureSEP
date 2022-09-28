@@ -436,7 +436,8 @@
 								"referenceName": "Json1",
 								"type": "DatasetReference",
 								"parameters": {}
-							}
+							},
+							"firstRowOnly": false
 						}
 					}
 				],
