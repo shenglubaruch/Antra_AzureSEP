@@ -11,6 +11,9 @@
 		"AzureDatabricksDeltaLake1_accessToken": {
 			"value": ""
 		},
+		"SqlServer1_connectionString": {
+			"value": ""
+		},
 		"WWISqlDatabase_connectionString": {
 			"value": ""
 		},
@@ -18,9 +21,6 @@
 			"value": ""
 		},
 		"WWISqlDatabaseODS_connectionString": {
-			"value": ""
-		},
-		"SqlServer1_connectionString": {
 			"value": ""
 		},
 		"AzureDataLakeStorage1_properties_typeProperties_url": {
