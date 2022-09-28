@@ -1,0 +1,1497 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "shenglutestadf"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_wwidw_customers_dim')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "WWISqlDatabaseDW",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "ds_wwi_dw"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Customer Key",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "WWI Customer ID",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Customer",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Bill To Customer",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Category",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Buying Group",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Primary Contact",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Postal Code",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Valid From",
+						"type": "datetime2",
+						"scale": 7
+					},
+					{
+						"name": "Valid To",
+						"type": "datetime2",
+						"scale": 7
+					},
+					{
+						"name": "Lineage Key",
+						"type": "int",
+						"precision": 10
+					}
+				],
+				"typeProperties": {
+					"schema": "Dimension",
+					"table": "Customer"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_wwidw_employee_dim')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "WWISqlDatabaseDW",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "ds_wwi_dw"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Employee Key",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "WWI Employee ID",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Employee",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Preferred Name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Is Salesperson",
+						"type": "bit"
+					},
+					{
+						"name": "Photo",
+						"type": "varbinary"
+					},
+					{
+						"name": "Valid From",
+						"type": "datetime2",
+						"scale": 7
+					},
+					{
+						"name": "Valid To",
+						"type": "datetime2",
+						"scale": 7
+					},
+					{
+						"name": "Lineage Key",
+						"type": "int",
+						"precision": 10
+					}
+				],
+				"typeProperties": {
+					"schema": "Dimension",
+					"table": "Employee"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_wwidw_order_fact')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "WWISqlDatabaseDW",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "ds_wwi_dw"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Order Key",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "City Key",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Customer Key",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Stock Item Key",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Order Date Key",
+						"type": "date"
+					},
+					{
+						"name": "Picked Date Key",
+						"type": "date"
+					},
+					{
+						"name": "Salesperson Key",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Picker Key",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "WWI Order ID",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "WWI Backorder ID",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Description",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Package",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Quantity",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Unit Price",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "Tax Rate",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 3
+					},
+					{
+						"name": "Total Excluding Tax",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "Tax Amount",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "Total Including Tax",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "Lineage Key",
+						"type": "int",
+						"precision": 10
+					}
+				],
+				"typeProperties": {
+					"schema": "Fact",
+					"table": "Order"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_wwidw_sale_fact')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "WWISqlDatabaseDW",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "ds_wwi_dw"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Sale Key",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "City Key",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Customer Key",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Bill To Customer Key",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Stock Item Key",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Invoice Date Key",
+						"type": "date"
+					},
+					{
+						"name": "Delivery Date Key",
+						"type": "date"
+					},
+					{
+						"name": "Salesperson Key",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "WWI Invoice ID",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Description",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Package",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Quantity",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Unit Price",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "Tax Rate",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 3
+					},
+					{
+						"name": "Total Excluding Tax",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "Tax Amount",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "Profit",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "Total Including Tax",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "Total Dry Items",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Total Chiller Items",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Lineage Key",
+						"type": "int",
+						"precision": 10
+					}
+				],
+				"typeProperties": {
+					"schema": "Fact",
+					"table": "Sale"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_wwidw_stockitems_dim')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "WWISqlDatabaseDW",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "ds_wwi_dw"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Stock Item Key",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "WWI Stock Item ID",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Stock Item",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Color",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Selling Package",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Buying Package",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Brand",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Size",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Lead Time Days",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Quantity Per Outer",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Is Chiller Stock",
+						"type": "bit"
+					},
+					{
+						"name": "Barcode",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Tax Rate",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 3
+					},
+					{
+						"name": "Unit Price",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "Recommended Retail Price",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "Typical Weight Per Unit",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 3
+					},
+					{
+						"name": "Photo",
+						"type": "varbinary"
+					},
+					{
+						"name": "Valid From",
+						"type": "datetime2",
+						"scale": 7
+					},
+					{
+						"name": "Valid To",
+						"type": "datetime2",
+						"scale": 7
+					},
+					{
+						"name": "Lineage Key",
+						"type": "int",
+						"precision": 10
+					}
+				],
+				"typeProperties": {
+					"schema": "Dimension",
+					"table": "Stock Item"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_wwiods_watermark')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "WWISqlDatabaseODS",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "ds_wwi_ods"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "TableName",
+						"type": "varchar"
+					},
+					{
+						"name": "WatermarkValue",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "watermarktable"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Json1')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "tableList.json",
+						"fileSystem": "wwi"
+					}
+				},
+				"schema": {
+					"type": "object",
+					"properties": {
+						"TABLE_NAME": {
+							"type": "string"
+						},
+						"WaterMark_Column": {
+							"type": "string"
+						},
+						"TableType": {
+							"type": "string"
+						},
+						"StoredProcedureNameForMergeOperation": {
+							"type": "string"
+						}
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_oltp_to_ods')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "iterateSQLTables",
+						"description": "Customers(Sales), Invoices(Sales), Orders(Sales), OrderLines(Sales), People(Application), StockItems(WareHouse)",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Lookup_tableList",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Lookup_tableList').output",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "LookupOldWaterMarkActivity",
+									"type": "Lookup",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "AzureSqlSource",
+											"sqlReaderQuery": "select * from watermarktable where TableName  =  '@{item().TABLE_NAME}'\n",
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"dataset": {
+											"referenceName": "ds_wwiods_watermark",
+											"type": "DatasetReference",
+											"parameters": {}
+										},
+										"firstRowOnly": true
+									}
+								},
+								{
+									"name": "LookupNewWaterMarkActivity",
+									"type": "Lookup",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "AzureSqlSource",
+											"sqlReaderQuery": "select MAX(@{item().WaterMark_Column}) as NewWatermarkvalue from @{item().TABLE_NAME}",
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"dataset": {
+											"referenceName": "SourceDataset",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									}
+								},
+								{
+									"name": "Copy data1",
+									"type": "Copy",
+									"dependsOn": [
+										{
+											"activity": "LookupNewWaterMarkActivity",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										},
+										{
+											"activity": "LookupOldWaterMarkActivity",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "AzureSqlSource",
+											"sqlReaderQuery": "select * from @{item().TABLE_NAME} where @{item().WaterMark_Column} > '@{activity('LookupOldWaterMarkActivity').output.firstRow.WatermarkValue}' and @{item().WaterMark_Column} <= '@{activity('LookupNewWaterMarkActivity').output.firstRow.NewWatermarkvalue}'",
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"sink": {
+											"type": "AzureSqlSink",
+											"sqlWriterStoredProcedureName": {
+												"value": "@{item().StoredProcedureNameForMergeOperation}",
+												"type": "Expression"
+											},
+											"sqlWriterTableType": {
+												"value": "@{item().TableType}",
+												"type": "Expression"
+											},
+											"storedProcedureTableTypeParameterName": {
+												"value": "@{item().TABLE_NAME}",
+												"type": "Expression"
+											},
+											"disableMetricsCollection": false
+										},
+										"enableStaging": false
+									},
+									"inputs": [
+										{
+											"referenceName": "SourceDataset",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "SinkDataset",
+											"type": "DatasetReference",
+											"parameters": {
+												"SinkTableName": {
+													"value": "@{item().TABLE_NAME}",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								},
+								{
+									"name": "StoredProceduretoWriteWatermarkActivity",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [
+										{
+											"activity": "Copy data1",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "[[dbo].[usp_write_watermark]",
+										"storedProcedureParameters": {
+											"LastModifiedtime": {
+												"value": {
+													"value": "@{activity('LookupNewWaterMarkActivity').output.firstRow.NewWatermarkvalue}",
+													"type": "Expression"
+												},
+												"type": "DateTime"
+											},
+											"TableName": {
+												"value": {
+													"value": "@{activity('LookupOldWaterMarkActivity').output.firstRow.TableName}",
+													"type": "Expression"
+												},
+												"type": "String"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "WWISqlDatabaseODS",
+										"type": "LinkedServiceReference"
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "Lookup_tableList",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "JsonSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "JsonReadSettings"
+								}
+							},
+							"dataset": {
+								"referenceName": "Json1",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"variables": {
+					"tableName": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "pl_wwi"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/Json1')]",
+				"[concat(variables('factoryId'), '/datasets/ds_wwiods_watermark')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_b2s')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "dataflow_movie"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_movie_bronze_parquet",
+								"type": "DatasetReference"
+							},
+							"name": "bronzeParquet"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_movie_silver_parquet",
+								"type": "DatasetReference"
+							},
+							"name": "cleanSilver"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_movie_bronze_parquet",
+								"type": "DatasetReference"
+							},
+							"name": "bronzeUpdate"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_orilanguage_silver_parquet",
+								"type": "DatasetReference"
+							},
+							"name": "languageSilver"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_genre_silver_parquet",
+								"type": "DatasetReference"
+							},
+							"name": "genresSilver"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_movie_genres_silver_parquet",
+								"type": "DatasetReference"
+							},
+							"name": "sinkJunctionMoviesGenres"
+						}
+					],
+					"transformations": [
+						{
+							"name": "filterStatusNew"
+						},
+						{
+							"name": "split1"
+						},
+						{
+							"name": "changeStatusPostive"
+						},
+						{
+							"name": "changeStatusNegative"
+						},
+						{
+							"name": "unionPN"
+						},
+						{
+							"name": "selectSilver"
+						},
+						{
+							"name": "selectLangague"
+						},
+						{
+							"name": "aggregateLanguage"
+						},
+						{
+							"name": "surrogateKey1"
+						},
+						{
+							"name": "flattenGenres"
+						},
+						{
+							"name": "aggrGenres"
+						},
+						{
+							"name": "selectGenres"
+						},
+						{
+							"name": "selectJunction"
+						},
+						{
+							"name": "flattenJunction"
+						},
+						{
+							"name": "junctionMoviesGenres"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          Id as short,",
+						"          Title as string,",
+						"          Overview as string,",
+						"          OriginalLanguage as string,",
+						"          Price as double,",
+						"          ReleaseDate as string,",
+						"          Budget as double,",
+						"          Revenue as double,",
+						"          RunTime as short,",
+						"          Tagline as string,",
+						"          ImdbUrl as string,",
+						"          TmdbUrl as string,",
+						"          PosterUrl as string,",
+						"          BackdropUrl as string,",
+						"          CreatedDate as string,",
+						"          CreatedBy as string,",
+						"          UpdatedDate as string,",
+						"          UpdatedBy as string,",
+						"          genres as (id as short, name as string)[],",
+						"          Status as string,",
+						"          ingestTime as timestamp,",
+						"          ingestDate as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     limit: 100,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> bronzeParquet",
+						"bronzeParquet filter(Status=='New') ~> filterStatusNew",
+						"filterStatusNew split(RunTime>=0,",
+						"     disjoint: false) ~> split1@(runtimePostive, runtimeNegative)",
+						"split1@runtimePostive derive(Status = 'Loaded') ~> changeStatusPostive",
+						"split1@runtimeNegative derive(Status = 'Quarantined') ~> changeStatusNegative",
+						"changeStatusPostive, changeStatusNegative union(byName: true)~> unionPN",
+						"changeStatusPostive select(mapColumn(",
+						"          Id,",
+						"          Title,",
+						"          Overview,",
+						"          OriginalLanguage,",
+						"          Price,",
+						"          ReleaseDate,",
+						"          Budget,",
+						"          Revenue,",
+						"          RunTime,",
+						"          Tagline,",
+						"          ImdbUrl,",
+						"          TmdbUrl,",
+						"          PosterUrl,",
+						"          BackdropUrl,",
+						"          CreatedDate,",
+						"          CreatedBy,",
+						"          UpdatedDate,",
+						"          UpdatedBy",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectSilver",
+						"bronzeParquet select(mapColumn(",
+						"          OriginalLanguage",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectLangague",
+						"selectLangague aggregate(groupBy(OriginalLanguage),",
+						"     each(match(name!='OriginalLanguage'), $$ = first($$))) ~> aggregateLanguage",
+						"aggregateLanguage keyGenerate(output(LanguageCode as long),",
+						"     startAt: 1L,",
+						"     stepValue: 1L) ~> surrogateKey1",
+						"selectGenres foldDown(unroll(genres),",
+						"     mapColumn(",
+						"          genres_id = genres.id,",
+						"          name = genres.name",
+						"     ),",
+						"     skipDuplicateMapInputs: false,",
+						"     skipDuplicateMapOutputs: false) ~> flattenGenres",
+						"flattenGenres aggregate(groupBy(name),",
+						"     each(match(name!='name'), $$ = first($$))) ~> aggrGenres",
+						"bronzeParquet select(mapColumn(",
+						"          genres",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectGenres",
+						"bronzeParquet select(mapColumn(",
+						"          Id,",
+						"          genres",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectJunction",
+						"selectJunction foldDown(unroll(genres),",
+						"     mapColumn(",
+						"          Id,",
+						"          genres_id = genres.id,",
+						"          name = genres.name",
+						"     ),",
+						"     skipDuplicateMapInputs: false,",
+						"     skipDuplicateMapOutputs: false) ~> flattenJunction",
+						"flattenJunction select(mapColumn(",
+						"          movie_Id = Id,",
+						"          genres_Id = genres_id",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> junctionMoviesGenres",
+						"selectSilver sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'parquet',",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> cleanSilver",
+						"unionPN sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'parquet',",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> bronzeUpdate",
+						"surrogateKey1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'parquet',",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> languageSilver",
+						"aggrGenres sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'parquet',",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> genresSilver",
+						"junctionMoviesGenres sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'parquet',",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> sinkJunctionMoviesGenres"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_r2b')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "dataflow_movie"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_movie_raw_json",
+								"type": "DatasetReference"
+							},
+							"name": "raw"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_movie_bronze_parquet",
+								"type": "DatasetReference"
+							},
+							"name": "bronze"
+						}
+					],
+					"transformations": [
+						{
+							"name": "addMetadata"
+						},
+						{
+							"name": "flatten1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          movie as (BackdropUrl as string, Budget as double, CreatedBy as string, CreatedDate as string, Id as short, ImdbUrl as string, OriginalLanguage as string, Overview as string, PosterUrl as string, Price as double, ReleaseDate as string, Revenue as double, RunTime as short, Tagline as string, Title as string, TmdbUrl as string, UpdatedBy as string, UpdatedDate as string, genres as (id as short, name as string)[])[]",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     limit: 100,",
+						"     ignoreNoFilesFound: false,",
+						"     documentForm: 'arrayOfDocuments') ~> raw",
+						"flatten1 derive(Status = 'New',",
+						"          ingestTime = currentTimestamp(),",
+						"          ingestDate = dayOfMonth(currentTimestamp())) ~> addMetadata",
+						"raw foldDown(unroll(movie),",
+						"     mapColumn(",
+						"          Id = movie.Id,",
+						"          Title = movie.Title,",
+						"          Overview = movie.Overview,",
+						"          OriginalLanguage = movie.OriginalLanguage,",
+						"          Price = movie.Price,",
+						"          ReleaseDate = movie.ReleaseDate,",
+						"          Budget = movie.Budget,",
+						"          Revenue = movie.Revenue,",
+						"          RunTime = movie.RunTime,",
+						"          Tagline = movie.Tagline,",
+						"          ImdbUrl = movie.ImdbUrl,",
+						"          TmdbUrl = movie.TmdbUrl,",
+						"          PosterUrl = movie.PosterUrl,",
+						"          BackdropUrl = movie.BackdropUrl,",
+						"          CreatedDate = movie.CreatedDate,",
+						"          CreatedBy = movie.CreatedBy,",
+						"          UpdatedDate = movie.UpdatedDate,",
+						"          UpdatedBy = movie.UpdatedBy,",
+						"          genres = movie.genres",
+						"     ),",
+						"     skipDuplicateMapInputs: false,",
+						"     skipDuplicateMapOutputs: false) ~> flatten1",
+						"addMetadata sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'parquet',",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> bronze"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_repair')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "dataflow_movie"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_movie_bronze_parquet",
+								"type": "DatasetReference"
+							},
+							"name": "bronzeParquet"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_movie_bronze_parquet",
+								"type": "DatasetReference"
+							},
+							"name": "bronzeUpdate"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_movie_silver_parquet",
+								"type": "DatasetReference"
+							},
+							"name": "silverInsert"
+						}
+					],
+					"transformations": [
+						{
+							"name": "alterRow1"
+						},
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          Id as short,",
+						"          Title as string,",
+						"          Overview as string,",
+						"          OriginalLanguage as string,",
+						"          Price as double,",
+						"          ReleaseDate as string,",
+						"          Budget as double,",
+						"          Revenue as double,",
+						"          RunTime as short,",
+						"          Tagline as string,",
+						"          ImdbUrl as string,",
+						"          TmdbUrl as string,",
+						"          PosterUrl as string,",
+						"          BackdropUrl as string,",
+						"          CreatedDate as string,",
+						"          CreatedBy as string,",
+						"          UpdatedDate as string,",
+						"          UpdatedBy as string,",
+						"          Status as string,",
+						"          ingestTime as timestamp,",
+						"          ingestDate as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> bronzeParquet",
+						"bronzeParquet alterRow(updateIf(Status=='Quarantined')) ~> alterRow1",
+						"alterRow1 derive(RunTime = abs(RunTime)) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'parquet',",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> bronzeUpdate",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'parquet',",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> silverInsert"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_bronze_to_silver')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "dataflow_b2s",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "dataflow_b2s",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"bronzeParquet": {
+										"containerName": "parquetmovies",
+										"directoryName": "movie_bronze_parquet"
+									},
+									"cleanSilver": {
+										"containerName": "parquetmovies",
+										"directoryName": "movie_silver_parquet"
+									},
+									"bronzeUpdate": {
+										"containerName": "parquetmovies",
+										"directoryName": "movie_bronze_parquet"
+									},
+									"languageSilver": {},
+									"genresSilver": {
+										"containerName": "parquetmovies",
+										"directoryName": "genre_silver_parquet"
+									},
+									"sinkJunctionMoviesGenres": {}
+								},
+								"linkedServiceParameters": {
+									"bronzeUpdate": {
+										"schemaLinkedService": {
+											"containerName": "parquetmovies",
+											"directoryName": "movie_bronze_parquet"
+										}
+									}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "dataflow_repair",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "dataflow_b2s",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "dataflow_repair",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"bronzeParquet": {
+										"containerName": "parquetmovies",
+										"directoryName": "movie_bronze_parquet"
+									},
+									"bronzeUpdate": {
+										"containerName": "parquetmovies",
+										"directoryName": "movie_bronze_parquet"
+									},
+									"silverInsert": {
+										"containerName": "parquetmovies",
+										"directoryName": "movie_silver_parquet"
+									}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "pl_movie"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/dataflow_b2s')]",
+				"[concat(variables('factoryId'), '/dataflows/dataflow_repair')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_raw_to_bronze')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "dataflow_r2b",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "dataflow_r2b",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"raw": {
+										"containerName": "jsonmovies"
+									},
+									"bronze": {
+										"containerName": "parquetmovies",
+										"directoryName": "movie_bronze_parquet"
+									}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "pl_movie"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/dataflow_r2b')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_movies')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "pl_raw_to_bronze",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "pl_raw_to_bronze",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "pl_bronze_to_silver",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "pl_raw_to_bronze",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "pl_bronze_to_silver",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "pl_movie"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/pl_raw_to_bronze')]",
+				"[concat(variables('factoryId'), '/pipelines/pl_bronze_to_silver')]"
+			]
+		}
+	]
+}

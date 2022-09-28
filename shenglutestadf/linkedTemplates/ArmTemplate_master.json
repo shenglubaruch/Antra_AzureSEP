@@ -15,6 +15,18 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'accessToken' of 'AzureDatabricksDeltaLake1'"
 		},
+		"WWISqlDatabase_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'WWISqlDatabase'"
+		},
+		"WWISqlDatabaseDW_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'WWISqlDatabaseDW'"
+		},
+		"WWISqlDatabaseODS_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'WWISqlDatabaseODS'"
+		},
 		"AzureDataLakeStorage1_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://shenglutestadls.dfs.core.windows.net/"
@@ -52,12 +64,41 @@
 					"AzureDatabricksDeltaLake1_accessToken": {
 						"value": "[parameters('AzureDatabricksDeltaLake1_accessToken')]"
 					},
+					"WWISqlDatabase_connectionString": {
+						"value": "[parameters('WWISqlDatabase_connectionString')]"
+					},
+					"WWISqlDatabaseDW_connectionString": {
+						"value": "[parameters('WWISqlDatabaseDW_connectionString')]"
+					},
+					"WWISqlDatabaseODS_connectionString": {
+						"value": "[parameters('WWISqlDatabaseODS_connectionString')]"
+					},
 					"AzureDataLakeStorage1_properties_typeProperties_url": {
 						"value": "[parameters('AzureDataLakeStorage1_properties_typeProperties_url')]"
 					}
 				}
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "shenglutestadf_ArmTemplate_1",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_1.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'shenglutestadf_ArmTemplate_0')]"
+			]
 		}
 	]
 }

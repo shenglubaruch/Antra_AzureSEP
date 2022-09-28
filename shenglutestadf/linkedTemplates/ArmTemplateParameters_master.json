@@ -11,6 +11,15 @@
 		"AzureDatabricksDeltaLake1_accessToken": {
 			"value": ""
 		},
+		"WWISqlDatabase_connectionString": {
+			"value": ""
+		},
+		"WWISqlDatabaseDW_connectionString": {
+			"value": ""
+		},
+		"WWISqlDatabaseODS_connectionString": {
+			"value": ""
+		},
 		"AzureDataLakeStorage1_properties_typeProperties_url": {
 			"value": "https://shenglutestadls.dfs.core.windows.net/"
 		},
