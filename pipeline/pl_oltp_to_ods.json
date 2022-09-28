@@ -3,15 +3,26 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "ForEachTable",
+				"name": "iterateSQLTables",
 				"description": "Customers(Sales), Invoices(Sales), Orders(Sales), OrderLines(Sales), People(Application), StockItems(WareHouse)",
 				"type": "ForEach",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "Lookup_tableList",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"userProperties": [],
 				"typeProperties": {
+					"items": {
+						"value": "@activity('Lookup_tableList').output",
+						"type": "Expression"
+					},
 					"activities": [
 						{
-							"name": "LastWatermarkValue",
+							"name": "LookupOldWaterMarkActivity",
 							"type": "Lookup",
 							"dependsOn": [],
 							"policy": {
@@ -25,18 +36,19 @@
 							"typeProperties": {
 								"source": {
 									"type": "AzureSqlSource",
+									"sqlReaderQuery": "select * from watermarktable where TableName  =  '@{item().TABLE_NAME}'\n",
 									"queryTimeout": "02:00:00",
 									"partitionOption": "None"
 								},
 								"dataset": {
-									"referenceName": "ds_wwi_watermarkTable",
+									"referenceName": "ds_wwiods_watermark",
 									"type": "DatasetReference"
 								},
 								"firstRowOnly": true
 							}
 						},
 						{
-							"name": "NewWatermarkValue",
+							"name": "LookupNewWaterMarkActivity",
 							"type": "Lookup",
 							"dependsOn": [],
 							"policy": {
@@ -46,20 +58,32 @@
 								"secureOutput": false,
 								"secureInput": false
 							},
-							"userProperties": []
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzureSqlSource",
+									"sqlReaderQuery": "select MAX(@{item().WaterMark_Column}) as NewWatermarkvalue from @{item().TABLE_NAME}",
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
+								},
+								"dataset": {
+									"referenceName": "SourceDataset",
+									"type": "DatasetReference"
+								}
+							}
 						},
 						{
 							"name": "Copy data1",
 							"type": "Copy",
 							"dependsOn": [
 								{
-									"activity": "NewWatermarkValue",
+									"activity": "LookupNewWaterMarkActivity",
 									"dependencyConditions": [
 										"Succeeded"
 									]
 								},
 								{
-									"activity": "LastWatermarkValue",
+									"activity": "LookupOldWaterMarkActivity",
 									"dependencyConditions": [
 										"Succeeded"
 									]
@@ -74,10 +98,123 @@
 							},
 							"userProperties": [],
 							"typeProperties": {
+								"source": {
+									"type": "AzureSqlSource",
+									"sqlReaderQuery": "select * from @{item().TABLE_NAME} where @{item().WaterMark_Column} > '@{activity('LookupOldWaterMarkActivity').output.firstRow.WatermarkValue}' and @{item().WaterMark_Column} <= '@{activity('LookupNewWaterMarkActivity').output.firstRow.NewWatermarkvalue}'",
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
+								},
+								"sink": {
+									"type": "AzureSqlSink",
+									"sqlWriterStoredProcedureName": {
+										"value": "@{item().StoredProcedureNameForMergeOperation}",
+										"type": "Expression"
+									},
+									"sqlWriterTableType": {
+										"value": "@{item().TableType}",
+										"type": "Expression"
+									},
+									"storedProcedureTableTypeParameterName": {
+										"value": "@{item().TABLE_NAME}",
+										"type": "Expression"
+									},
+									"disableMetricsCollection": false
+								},
 								"enableStaging": false
+							},
+							"inputs": [
+								{
+									"referenceName": "SourceDataset",
+									"type": "DatasetReference"
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "SinkDataset",
+									"type": "DatasetReference",
+									"parameters": {
+										"SinkTableName": {
+											"value": "@{item().TABLE_NAME}",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						},
+						{
+							"name": "StoredProceduretoWriteWatermarkActivity",
+							"type": "SqlServerStoredProcedure",
+							"dependsOn": [
+								{
+									"activity": "Copy data1",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"storedProcedureName": "[dbo].[usp_write_watermark]",
+								"storedProcedureParameters": {
+									"LastModifiedtime": {
+										"value": {
+											"value": "@{activity('LookupNewWaterMarkActivity').output.firstRow.NewWatermarkvalue}",
+											"type": "Expression"
+										},
+										"type": "DateTime"
+									},
+									"TableName": {
+										"value": {
+											"value": "@{activity('LookupOldWaterMarkActivity').output.firstRow.TableName}",
+											"type": "Expression"
+										},
+										"type": "String"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "WWISqlDatabaseODS",
+								"type": "LinkedServiceReference"
 							}
 						}
 					]
+				}
+			},
+			{
+				"name": "Lookup_tableList",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "JsonReadSettings"
+						}
+					},
+					"dataset": {
+						"referenceName": "Json1",
+						"type": "DatasetReference"
+					}
 				}
 			}
 		],
