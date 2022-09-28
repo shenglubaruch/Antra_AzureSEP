@@ -345,7 +345,7 @@
 												"type": "Expression"
 											},
 											"storedProcedureTableTypeParameterName": {
-												"value": "@{item().TABLE_NAME}",
+												"value": "@{item().parameterName}",
 												"type": "Expression"
 											},
 											"disableMetricsCollection": false
