@@ -2214,7 +2214,7 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobFSLocation",
-						"fileName": "tableList.json",
+						"fileName": "tableList2.json",
 						"fileSystem": "wwi"
 					}
 				},
