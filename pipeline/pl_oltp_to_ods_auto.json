@@ -114,13 +114,11 @@
 									"partitionOption": "None"
 								},
 								"sink": {
-									"type": "ParquetSink",
-									"storeSettings": {
-										"type": "AzureBlobFSWriteSettings"
-									},
-									"formatSettings": {
-										"type": "ParquetWriteSettings"
-									}
+									"type": "AzureSqlSink",
+									"sqlWriterStoredProcedureName": "@{item().StoredProcedureNameForMergeOperation}",
+									"sqlWriterTableType": "@{item().TableType}",
+									"storedProcedureTableTypeParameterName": "@{item().parameterName}",
+									"disableMetricsCollection": false
 								},
 								"enableStaging": false
 							},
@@ -132,8 +130,11 @@
 							],
 							"outputs": [
 								{
-									"referenceName": "SinkParquet",
-									"type": "DatasetReference"
+									"referenceName": "SinkDataset",
+									"type": "DatasetReference",
+									"parameters": {
+										"SinkTableName": "@{item().SinkTableName}"
+									}
 								}
 							]
 						},
