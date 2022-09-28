@@ -1,5 +1,5 @@
 {
-	"name": "pl_oltp_to_ods",
+	"name": "pl_oltp_to_ods_auto",
 	"properties": {
 		"activities": [
 			{
@@ -114,20 +114,13 @@
 									"partitionOption": "None"
 								},
 								"sink": {
-									"type": "AzureSqlSink",
-									"sqlWriterStoredProcedureName": {
-										"value": "@{item().StoredProcedureNameForMergeOperation}",
-										"type": "Expression"
+									"type": "ParquetSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
 									},
-									"sqlWriterTableType": {
-										"value": "@{item().TableType}",
-										"type": "Expression"
-									},
-									"storedProcedureTableTypeParameterName": {
-										"value": "@{item().parameterName}",
-										"type": "Expression"
-									},
-									"disableMetricsCollection": false
+									"formatSettings": {
+										"type": "ParquetWriteSettings"
+									}
 								},
 								"enableStaging": false
 							},
@@ -139,14 +132,8 @@
 							],
 							"outputs": [
 								{
-									"referenceName": "SinkDataset",
-									"type": "DatasetReference",
-									"parameters": {
-										"SinkTableName": {
-											"value": "@{item().SinkTableName}",
-											"type": "Expression"
-										}
-									}
+									"referenceName": "SinkParquet",
+									"type": "DatasetReference"
 								}
 							]
 						},
