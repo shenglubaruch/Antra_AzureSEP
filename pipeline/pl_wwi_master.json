@@ -1,6 +1,21 @@
 {
 	"name": "pl_wwi_master",
 	"properties": {
+		"activities": [
+			{
+				"name": "pl_oltp_to_ods_auto",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_oltp_to_ods_auto",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
 		"folder": {
 			"name": "pl_wwi"
 		},
