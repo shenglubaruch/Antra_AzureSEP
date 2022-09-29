@@ -14,6 +14,26 @@
 					},
 					"waitOnCompletion": true
 				}
+			},
+			{
+				"name": "pl_ods_parquet",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "pl_oltp_to_ods_auto",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_ods_parquet",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
 			}
 		],
 		"folder": {
