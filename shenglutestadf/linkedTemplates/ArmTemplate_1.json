@@ -13,6 +13,117 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/ds_wwi_people')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "WWISqlDatabase",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "ds_wwi"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "PersonID",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "FullName",
+						"type": "nvarchar"
+					},
+					{
+						"name": "PreferredName",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SearchName",
+						"type": "nvarchar"
+					},
+					{
+						"name": "IsPermittedToLogon",
+						"type": "bit"
+					},
+					{
+						"name": "LogonName",
+						"type": "nvarchar"
+					},
+					{
+						"name": "IsExternalLogonProvider",
+						"type": "bit"
+					},
+					{
+						"name": "HashedPassword",
+						"type": "varbinary"
+					},
+					{
+						"name": "IsSystemUser",
+						"type": "bit"
+					},
+					{
+						"name": "IsEmployee",
+						"type": "bit"
+					},
+					{
+						"name": "IsSalesperson",
+						"type": "bit"
+					},
+					{
+						"name": "UserPreferences",
+						"type": "nvarchar"
+					},
+					{
+						"name": "PhoneNumber",
+						"type": "nvarchar"
+					},
+					{
+						"name": "FaxNumber",
+						"type": "nvarchar"
+					},
+					{
+						"name": "EmailAddress",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Photo",
+						"type": "varbinary"
+					},
+					{
+						"name": "CustomFields",
+						"type": "nvarchar"
+					},
+					{
+						"name": "OtherLanguages",
+						"type": "nvarchar"
+					},
+					{
+						"name": "LastEditedBy",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "ValidFrom",
+						"type": "datetime2",
+						"scale": 7
+					},
+					{
+						"name": "ValidTo",
+						"type": "datetime2",
+						"scale": 7
+					}
+				],
+				"typeProperties": {
+					"schema": "Application",
+					"table": "People"
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/ds_wwi_stockitems')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -731,18 +842,13 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/SinkParquet')]",
+			"name": "[concat(parameters('factoryName'), '/ds_wwiods_customers_parquet')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"linkedServiceName": {
 					"referenceName": "AzureDataLakeStorage1",
 					"type": "LinkedServiceReference"
-				},
-				"parameters": {
-					"fileName": {
-						"type": "string"
-					}
 				},
 				"folder": {
 					"name": "ds_wwi_ods"
@@ -752,18 +858,283 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobFSLocation",
-						"fileName": {
-							"value": "@dataset().fileName",
-							"type": "Expression"
-						},
+						"fileName": "Customers",
 						"folderPath": "ODS",
 						"fileSystem": "wwi"
 					},
 					"compressionCodec": "snappy"
 				},
-				"schema": []
+				"schema": [
+					{
+						"name": "CustomerID",
+						"type": "INT32"
+					},
+					{
+						"name": "CustomerName",
+						"type": "UTF8"
+					},
+					{
+						"name": "BillToCustomerID",
+						"type": "INT32"
+					},
+					{
+						"name": "CustomerCategoryID",
+						"type": "INT32"
+					},
+					{
+						"name": "BuyingGroupID",
+						"type": "INT32"
+					},
+					{
+						"name": "PrimaryContactPersonID",
+						"type": "INT32"
+					},
+					{
+						"name": "AlternateContactPersonID",
+						"type": "INT32"
+					},
+					{
+						"name": "DeliveryMethodID",
+						"type": "INT32"
+					},
+					{
+						"name": "DeliveryCityID",
+						"type": "INT32"
+					},
+					{
+						"name": "PostalCityID",
+						"type": "INT32"
+					},
+					{
+						"name": "CreditLimit",
+						"type": "DECIMAL",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "AccountOpenedDate",
+						"type": "DATE"
+					},
+					{
+						"name": "StandardDiscountPercentage",
+						"type": "DECIMAL",
+						"precision": 18,
+						"scale": 3
+					},
+					{
+						"name": "IsStatementSent",
+						"type": "BOOLEAN"
+					},
+					{
+						"name": "IsOnCreditHold",
+						"type": "BOOLEAN"
+					},
+					{
+						"name": "PaymentDays",
+						"type": "INT32"
+					},
+					{
+						"name": "PhoneNumber",
+						"type": "UTF8"
+					},
+					{
+						"name": "FaxNumber",
+						"type": "UTF8"
+					},
+					{
+						"name": "DeliveryRun",
+						"type": "UTF8"
+					},
+					{
+						"name": "RunPosition",
+						"type": "UTF8"
+					},
+					{
+						"name": "WebsiteURL",
+						"type": "UTF8"
+					},
+					{
+						"name": "DeliveryAddressLine1",
+						"type": "UTF8"
+					},
+					{
+						"name": "DeliveryAddressLine2",
+						"type": "UTF8"
+					},
+					{
+						"name": "DeliveryPostalCode",
+						"type": "UTF8"
+					},
+					{
+						"name": "DeliveryLocation",
+						"type": "UTF8"
+					},
+					{
+						"name": "PostalAddressLine1",
+						"type": "UTF8"
+					},
+					{
+						"name": "PostalAddressLine2",
+						"type": "UTF8"
+					},
+					{
+						"name": "PostalPostalCode",
+						"type": "UTF8"
+					},
+					{
+						"name": "LastEditedBy",
+						"type": "INT32"
+					},
+					{
+						"name": "ValidFrom",
+						"type": "INT96"
+					},
+					{
+						"name": "ValidTo",
+						"type": "INT96"
+					}
+				]
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_ods_parquet')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Lookup_tableList",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "JsonSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "JsonReadSettings"
+								}
+							},
+							"dataset": {
+								"referenceName": "ds_wwiods_tableList",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "iterateSQLTablesODS",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Lookup_tableList",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Lookup_tableList').output.value",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Copy data1",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "AzureSqlSource",
+											"sqlReaderQuery": {
+												"value": "select * from dbo.@{item().SinkTableName}",
+												"type": "Expression"
+											},
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"sink": {
+											"type": "ParquetSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "ParquetWriteSettings"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "SinkDataset",
+											"type": "DatasetReference",
+											"parameters": {
+												"SinkTableName": {
+													"value": "@{item().SinkTableName}",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "SinkParquet",
+											"type": "DatasetReference",
+											"parameters": {
+												"fileName": {
+													"value": "@{item().SinkTableName}",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "pl_wwi"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ds_wwiods_tableList')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/pl_oltp_to_ods_auto')]",
@@ -886,9 +1257,18 @@
 										},
 										"sink": {
 											"type": "AzureSqlSink",
-											"sqlWriterStoredProcedureName": "@{item().StoredProcedureNameForMergeOperation}",
-											"sqlWriterTableType": "@{item().TableType}",
-											"storedProcedureTableTypeParameterName": "@{item().parameterName}",
+											"sqlWriterStoredProcedureName": {
+												"value": "@{item().StoredProcedureNameForMergeOperation}",
+												"type": "Expression"
+											},
+											"sqlWriterTableType": {
+												"value": "@{item().TableType}",
+												"type": "Expression"
+											},
+											"storedProcedureTableTypeParameterName": {
+												"value": "@{item().parameterName}",
+												"type": "Expression"
+											},
 											"disableMetricsCollection": false
 										},
 										"enableStaging": false
@@ -1431,146 +1811,6 @@
 				}
 			},
 			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/pl_ods_parquet')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Lookup_tableList",
-						"type": "Lookup",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "JsonSource",
-								"storeSettings": {
-									"type": "AzureBlobFSReadSettings",
-									"recursive": true,
-									"enablePartitionDiscovery": false
-								},
-								"formatSettings": {
-									"type": "JsonReadSettings"
-								}
-							},
-							"dataset": {
-								"referenceName": "ds_wwiods_tableList",
-								"type": "DatasetReference",
-								"parameters": {}
-							},
-							"firstRowOnly": false
-						}
-					},
-					{
-						"name": "iterateSQLTablesODS",
-						"type": "ForEach",
-						"dependsOn": [
-							{
-								"activity": "Lookup_tableList",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"items": {
-								"value": "@activity('Lookup_tableList').output.value",
-								"type": "Expression"
-							},
-							"activities": [
-								{
-									"name": "Copy data1",
-									"type": "Copy",
-									"dependsOn": [],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"source": {
-											"type": "AzureSqlSource",
-											"sqlReaderQuery": {
-												"value": "select * from dbo.@{item().SinkTableName}",
-												"type": "Expression"
-											},
-											"queryTimeout": "02:00:00",
-											"partitionOption": "None"
-										},
-										"sink": {
-											"type": "ParquetSink",
-											"storeSettings": {
-												"type": "AzureBlobFSWriteSettings"
-											},
-											"formatSettings": {
-												"type": "ParquetWriteSettings"
-											}
-										},
-										"enableStaging": false,
-										"translator": {
-											"type": "TabularTranslator",
-											"typeConversion": true,
-											"typeConversionSettings": {
-												"allowDataTruncation": true,
-												"treatBooleanAsNumber": false
-											}
-										}
-									},
-									"inputs": [
-										{
-											"referenceName": "SinkDataset",
-											"type": "DatasetReference",
-											"parameters": {
-												"SinkTableName": {
-													"value": "@{item().SinkTableName}",
-													"type": "Expression"
-												}
-											}
-										}
-									],
-									"outputs": [
-										{
-											"referenceName": "SinkParquet",
-											"type": "DatasetReference",
-											"parameters": {
-												"fileName": {
-													"value": "@{item().SinkTableName}",
-													"type": "Expression"
-												}
-											}
-										}
-									]
-								}
-							]
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
-				},
-				"folder": {
-					"name": "pl_wwi"
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/ds_wwiods_tableList')]",
-				"[concat(variables('factoryId'), '/datasets/SinkParquet')]"
-			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/pl_bronze_to_silver')]",
