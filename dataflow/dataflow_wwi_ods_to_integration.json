@@ -64,6 +64,13 @@
 						"type": "DatasetReference"
 					},
 					"name": "sinkEmployee"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_wwiInte_stockitems_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "sinkStockitems"
 				}
 			],
 			"transformations": [
@@ -84,6 +91,9 @@
 				},
 				{
 					"name": "selectEmployee"
+				},
+				{
+					"name": "selectStockitems"
 				}
 			],
 			"scriptLines": [
@@ -302,6 +312,28 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> selectEmployee",
+				"StockItems select(mapColumn(",
+				"          {WWI StockItemID} = StockItemID,",
+				"          StockItem = StockItemName,",
+				"          ColorID,",
+				"          UnitPackageID,",
+				"          OuterPackageID,",
+				"          Brand,",
+				"          Size,",
+				"          {Lead Time Days} = LeadTimeDays,",
+				"          {Quantity Per Outer} = QuantityPerOuter,",
+				"          {Is Chiller Stock} = IsChillerStock,",
+				"          Barcode,",
+				"          {Tax Rate} = TaxRate,",
+				"          {Unit Price} = UnitPrice,",
+				"          {Recommended Retail Price} = RecommendedRetailPrice,",
+				"          {Typical Weight Per Unit} = TypicalWeightPerUnit,",
+				"          Photo,",
+				"          ValidFrom,",
+				"          ValidTo",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectStockitems",
 				"selectCustomersInte sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
@@ -350,7 +382,15 @@
 				"     preCommands: [],",
 				"     postCommands: [],",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> sinkEmployee"
+				"     skipDuplicateMapOutputs: true) ~> sinkEmployee",
+				"selectStockitems sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'parquet',",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sinkStockitems"
 			]
 		}
 	}
