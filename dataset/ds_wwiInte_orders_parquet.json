@@ -12,7 +12,7 @@
 			},
 			"directoryName": {
 				"type": "string",
-				"defaultValue": "Integration/orders_Integration_parquet(Order&OrderLines)"
+				"defaultValue": "Integration/orders_Integration_parquet"
 			}
 		},
 		"folder": {
