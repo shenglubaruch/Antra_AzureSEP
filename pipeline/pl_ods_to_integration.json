@@ -3,7 +3,8 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Data flow1",
+				"name": "ODS_to_Integration_Parquet",
+				"description": "Store Parquet Files in Storage Account",
 				"type": "ExecuteDataFlow",
 				"dependsOn": [],
 				"policy": {
@@ -34,6 +35,10 @@
 							"sinkOrdersFact": {
 								"containerName": "wwi",
 								"directoryName": "Integration/orders_Integration_parquet"
+							},
+							"sinkSalesFact": {
+								"containerName": "wwi",
+								"directoryName": "Integration/sales_Integration_parquet(Invoices))"
 							}
 						}
 					},
