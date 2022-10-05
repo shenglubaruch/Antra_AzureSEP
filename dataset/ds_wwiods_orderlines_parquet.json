@@ -14,7 +14,7 @@
 			"location": {
 				"type": "AzureBlobFSLocation",
 				"fileName": "OrderLines",
-				"folderPath": "ODS",
+				"folderPath": "ODS/OrderLines",
 				"fileSystem": "wwi"
 			},
 			"compressionCodec": "snappy"

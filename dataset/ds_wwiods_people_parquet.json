@@ -14,7 +14,7 @@
 			"location": {
 				"type": "AzureBlobFSLocation",
 				"fileName": "People",
-				"folderPath": "ODS",
+				"folderPath": "ODS/People",
 				"fileSystem": "wwi"
 			},
 			"compressionCodec": "snappy"

@@ -14,7 +14,7 @@
 			"location": {
 				"type": "AzureBlobFSLocation",
 				"fileName": "Orders",
-				"folderPath": "ODS",
+				"folderPath": "ODS/Orders",
 				"fileSystem": "wwi"
 			},
 			"compressionCodec": "snappy"

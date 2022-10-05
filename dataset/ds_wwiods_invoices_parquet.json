@@ -14,7 +14,7 @@
 			"location": {
 				"type": "AzureBlobFSLocation",
 				"fileName": "Invoices",
-				"folderPath": "ODS",
+				"folderPath": "ODS/Invoices",
 				"fileSystem": "wwi"
 			},
 			"compressionCodec": "snappy"

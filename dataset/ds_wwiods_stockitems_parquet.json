@@ -14,7 +14,7 @@
 			"location": {
 				"type": "AzureBlobFSLocation",
 				"fileName": "StockItems",
-				"folderPath": "ODS",
+				"folderPath": "ODS/StockItems",
 				"fileSystem": "wwi"
 			},
 			"compressionCodec": "snappy"
