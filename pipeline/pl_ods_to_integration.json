@@ -1,0 +1,9 @@
+{
+	"name": "pl_ods_to_integration",
+	"properties": {
+		"folder": {
+			"name": "pl_wwi"
+		},
+		"annotations": []
+	}
+}
