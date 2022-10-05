@@ -13,7 +13,6 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"fileName": "StockItems",
 				"folderPath": "ODS/StockItems",
 				"fileSystem": "wwi"
 			},
