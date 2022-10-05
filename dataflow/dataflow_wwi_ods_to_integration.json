@@ -60,7 +60,7 @@
 				},
 				{
 					"dataset": {
-						"referenceName": "ds_wwiInte_Employee_parquet",
+						"referenceName": "ds_wwiInte_employee_parquet",
 						"type": "DatasetReference"
 					},
 					"name": "sinkEmployee"
@@ -71,6 +71,13 @@
 						"type": "DatasetReference"
 					},
 					"name": "sinkStockitems"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_wwiInte_orders_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "sinkOrdersFact"
 				}
 			],
 			"transformations": [
@@ -102,7 +109,10 @@
 					"name": "selectOrderLines"
 				},
 				{
-					"name": "join1"
+					"name": "joinOrdersFact"
+				},
+				{
+					"name": "selectOrdersFact"
 				}
 			],
 			"scriptLines": [
@@ -344,7 +354,7 @@
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> selectStockitems",
 				"OrdersParquet select(mapColumn(",
-				"          OrderID,",
+				"          OrderID1 = OrderID,",
 				"          CustomerID,",
 				"          SalespersonPersonID,",
 				"          PickedByPersonID,",
@@ -368,11 +378,29 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> selectOrderLines",
-				"selectOrderLines join(ERROR_FUNCTION('') == ERROR_FUNCTION(''),",
+				"selectOrderLines, selectOrders join(OrderID == OrderID1,",
 				"     joinType:'inner',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> join1",
+				"     broadcast: 'auto')~> joinOrdersFact",
+				"joinOrdersFact select(mapColumn(",
+				"          {WWI OrderLineID} = OrderLineID,",
+				"          {WWI OrderID} = OrderID,",
+				"          {Customer Key} = CustomerID,",
+				"          {StockItem Key} = StockItemID,",
+				"          OrderDate,",
+				"          {Picked Date} = PickingCompletedWhen,",
+				"          {Salesperson Key} = SalespersonPersonID,",
+				"          {Picker Key} = PickedByPersonID,",
+				"          {WWI Backorder ID} = BackorderOrderID,",
+				"          {PackageType Key} = PackageTypeID,",
+				"          Description,",
+				"          UnitPrice,",
+				"          Quantity,",
+				"          TaxRate",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectOrdersFact",
 				"selectCustomersInte sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
@@ -429,7 +457,15 @@
 				"     preCommands: [],",
 				"     postCommands: [],",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> sinkStockitems"
+				"     skipDuplicateMapOutputs: true) ~> sinkStockitems",
+				"selectOrdersFact sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'parquet',",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sinkOrdersFact"
 			]
 		}
 	}
