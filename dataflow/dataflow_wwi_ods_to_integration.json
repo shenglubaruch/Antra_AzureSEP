@@ -56,7 +56,7 @@
 						"referenceName": "ds_wwiInte_customers_parquet",
 						"type": "DatasetReference"
 					},
-					"name": "sinkCustomersIntegration"
+					"name": "sinkCustomers"
 				},
 				{
 					"dataset": {
@@ -306,7 +306,7 @@
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> joinBillCustomers",
 				"joinBillCustomers select(mapColumn(",
-				"          {WWI CustomerID} = selectCustomers@CustomerID,",
+				"          WWICustomerID = selectCustomers@CustomerID,",
 				"          Customer = selectCustomers@CustomerName,",
 				"          BillToCustomerID = selectCustomers@BillToCustomerID,",
 				"          BillToCustomer = CustomersParquet@CustomerName,",
@@ -320,10 +320,10 @@
 				"     skipDuplicateMapOutputs: true) ~> selectCustomersInte",
 				"PeopleParquet filter(IsEmployee == true()) ~> filterEmployee",
 				"filterEmployee select(mapColumn(",
-				"          {WWI PersonID} = PersonID,",
+				"          WWIPersonID = PersonID,",
 				"          Employee = FullName,",
-				"          {Preferred Name} = PreferredName,",
-				"          {Is Salesperson} = IsSalesperson,",
+				"          PreferredName,",
+				"          IsSalesperson,",
 				"          PhoneNumber,",
 				"          Photo,",
 				"          ValidFrom,",
@@ -441,7 +441,7 @@
 				"     preCommands: [],",
 				"     postCommands: [],",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> sinkCustomersIntegration",
+				"     skipDuplicateMapOutputs: true) ~> sinkCustomers",
 				"selectEmployee sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'parquet',",
