@@ -332,7 +332,7 @@
 											"referenceName": "SinkParquet",
 											"type": "DatasetReference",
 											"parameters": {
-												"fileName": {
+												"folderName": {
 													"value": "@{item().SinkTableName}",
 													"type": "Expression"
 												}
@@ -762,7 +762,7 @@
 					"type": "LinkedServiceReference"
 				},
 				"parameters": {
-					"fileName": {
+					"folderName": {
 						"type": "string"
 					}
 				},
@@ -774,11 +774,10 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobFSLocation",
-						"fileName": {
-							"value": "@dataset().fileName",
+						"folderPath": {
+							"value": "ODS/@{dataset().folderName}",
 							"type": "Expression"
 						},
-						"folderPath": "ODS",
 						"fileSystem": "wwi"
 					},
 					"compressionCodec": "snappy"
@@ -2453,6 +2452,716 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/ds_wwiods_customers_parquet')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "ds_wwi_ods"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "ODS/Customers",
+						"fileSystem": "wwi"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "CustomerID",
+						"type": "INT32"
+					},
+					{
+						"name": "CustomerName",
+						"type": "UTF8"
+					},
+					{
+						"name": "BillToCustomerID",
+						"type": "INT32"
+					},
+					{
+						"name": "CustomerCategoryID",
+						"type": "INT32"
+					},
+					{
+						"name": "BuyingGroupID",
+						"type": "INT32"
+					},
+					{
+						"name": "PrimaryContactPersonID",
+						"type": "INT32"
+					},
+					{
+						"name": "AlternateContactPersonID",
+						"type": "INT32"
+					},
+					{
+						"name": "DeliveryMethodID",
+						"type": "INT32"
+					},
+					{
+						"name": "DeliveryCityID",
+						"type": "INT32"
+					},
+					{
+						"name": "PostalCityID",
+						"type": "INT32"
+					},
+					{
+						"name": "CreditLimit",
+						"type": "DECIMAL",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "AccountOpenedDate",
+						"type": "DATE"
+					},
+					{
+						"name": "StandardDiscountPercentage",
+						"type": "DECIMAL",
+						"precision": 18,
+						"scale": 3
+					},
+					{
+						"name": "IsStatementSent",
+						"type": "BOOLEAN"
+					},
+					{
+						"name": "IsOnCreditHold",
+						"type": "BOOLEAN"
+					},
+					{
+						"name": "PaymentDays",
+						"type": "INT32"
+					},
+					{
+						"name": "PhoneNumber",
+						"type": "UTF8"
+					},
+					{
+						"name": "FaxNumber",
+						"type": "UTF8"
+					},
+					{
+						"name": "DeliveryRun",
+						"type": "UTF8"
+					},
+					{
+						"name": "RunPosition",
+						"type": "UTF8"
+					},
+					{
+						"name": "WebsiteURL",
+						"type": "UTF8"
+					},
+					{
+						"name": "DeliveryAddressLine1",
+						"type": "UTF8"
+					},
+					{
+						"name": "DeliveryAddressLine2",
+						"type": "UTF8"
+					},
+					{
+						"name": "DeliveryPostalCode",
+						"type": "UTF8"
+					},
+					{
+						"name": "DeliveryLocation",
+						"type": "UTF8"
+					},
+					{
+						"name": "PostalAddressLine1",
+						"type": "UTF8"
+					},
+					{
+						"name": "PostalAddressLine2",
+						"type": "UTF8"
+					},
+					{
+						"name": "PostalPostalCode",
+						"type": "UTF8"
+					},
+					{
+						"name": "LastEditedBy",
+						"type": "INT32"
+					},
+					{
+						"name": "ValidFrom",
+						"type": "INT96"
+					},
+					{
+						"name": "ValidTo",
+						"type": "INT96"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_wwiods_invoices_parquet')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "ds_wwi_ods"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "ODS/Invoices",
+						"fileSystem": "wwi"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "InvoiceID",
+						"type": "INT32"
+					},
+					{
+						"name": "CustomerID",
+						"type": "INT32"
+					},
+					{
+						"name": "BillToCustomerID",
+						"type": "INT32"
+					},
+					{
+						"name": "OrderID",
+						"type": "INT32"
+					},
+					{
+						"name": "DeliveryMethodID",
+						"type": "INT32"
+					},
+					{
+						"name": "ContactPersonID",
+						"type": "INT32"
+					},
+					{
+						"name": "AccountsPersonID",
+						"type": "INT32"
+					},
+					{
+						"name": "SalespersonPersonID",
+						"type": "INT32"
+					},
+					{
+						"name": "PackedByPersonID",
+						"type": "INT32"
+					},
+					{
+						"name": "InvoiceDate",
+						"type": "DATE"
+					},
+					{
+						"name": "CustomerPurchaseOrderNumber",
+						"type": "UTF8"
+					},
+					{
+						"name": "IsCreditNote",
+						"type": "BOOLEAN"
+					},
+					{
+						"name": "CreditNoteReason",
+						"type": "UTF8"
+					},
+					{
+						"name": "Comments",
+						"type": "UTF8"
+					},
+					{
+						"name": "DeliveryInstructions",
+						"type": "UTF8"
+					},
+					{
+						"name": "InternalComments",
+						"type": "UTF8"
+					},
+					{
+						"name": "TotalDryItems",
+						"type": "INT32"
+					},
+					{
+						"name": "TotalChillerItems",
+						"type": "INT32"
+					},
+					{
+						"name": "DeliveryRun",
+						"type": "UTF8"
+					},
+					{
+						"name": "RunPosition",
+						"type": "UTF8"
+					},
+					{
+						"name": "ReturnedDeliveryData",
+						"type": "UTF8"
+					},
+					{
+						"name": "ConfirmedDeliveryTime",
+						"type": "INT96"
+					},
+					{
+						"name": "ConfirmedReceivedBy",
+						"type": "UTF8"
+					},
+					{
+						"name": "LastEditedBy",
+						"type": "INT32"
+					},
+					{
+						"name": "LastEditedWhen",
+						"type": "INT96"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_wwiods_orderlines_parquet')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "ds_wwi_ods"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "ODS/OrderLines",
+						"fileSystem": "wwi"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "OrderLineID",
+						"type": "INT32"
+					},
+					{
+						"name": "OrderID",
+						"type": "INT32"
+					},
+					{
+						"name": "StockItemID",
+						"type": "INT32"
+					},
+					{
+						"name": "Description",
+						"type": "UTF8"
+					},
+					{
+						"name": "PackageTypeID",
+						"type": "INT32"
+					},
+					{
+						"name": "Quantity",
+						"type": "INT32"
+					},
+					{
+						"name": "UnitPrice",
+						"type": "DECIMAL",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "TaxRate",
+						"type": "DECIMAL",
+						"precision": 18,
+						"scale": 3
+					},
+					{
+						"name": "PickedQuantity",
+						"type": "INT32"
+					},
+					{
+						"name": "PickingCompletedWhen",
+						"type": "INT96"
+					},
+					{
+						"name": "LastEditedBy",
+						"type": "INT32"
+					},
+					{
+						"name": "LastEditedWhen",
+						"type": "INT96"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_wwiods_orders_parquet')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "ds_wwi_ods"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "ODS/Orders",
+						"fileSystem": "wwi"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "OrderID",
+						"type": "INT32"
+					},
+					{
+						"name": "CustomerID",
+						"type": "INT32"
+					},
+					{
+						"name": "SalespersonPersonID",
+						"type": "INT32"
+					},
+					{
+						"name": "PickedByPersonID",
+						"type": "INT32"
+					},
+					{
+						"name": "ContactPersonID",
+						"type": "INT32"
+					},
+					{
+						"name": "BackorderOrderID",
+						"type": "INT32"
+					},
+					{
+						"name": "OrderDate",
+						"type": "DATE"
+					},
+					{
+						"name": "ExpectedDeliveryDate",
+						"type": "DATE"
+					},
+					{
+						"name": "CustomerPurchaseOrderNumber",
+						"type": "UTF8"
+					},
+					{
+						"name": "IsUndersupplyBackordered",
+						"type": "BOOLEAN"
+					},
+					{
+						"name": "Comments",
+						"type": "UTF8"
+					},
+					{
+						"name": "DeliveryInstructions",
+						"type": "UTF8"
+					},
+					{
+						"name": "InternalComments",
+						"type": "UTF8"
+					},
+					{
+						"name": "PickingCompletedWhen",
+						"type": "INT96"
+					},
+					{
+						"name": "LastEditedBy",
+						"type": "INT32"
+					},
+					{
+						"name": "LastEditedWhen",
+						"type": "INT96"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_wwiods_people_parquet')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "ds_wwi_ods"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "ODS/People",
+						"fileSystem": "wwi"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "PersonID",
+						"type": "INT32"
+					},
+					{
+						"name": "FullName",
+						"type": "UTF8"
+					},
+					{
+						"name": "PreferredName",
+						"type": "UTF8"
+					},
+					{
+						"name": "SearchName",
+						"type": "UTF8"
+					},
+					{
+						"name": "IsPermittedToLogon",
+						"type": "BOOLEAN"
+					},
+					{
+						"name": "LogonName",
+						"type": "UTF8"
+					},
+					{
+						"name": "IsExternalLogonProvider",
+						"type": "BOOLEAN"
+					},
+					{
+						"name": "HashedPassword",
+						"type": "BINARY"
+					},
+					{
+						"name": "IsSystemUser",
+						"type": "BOOLEAN"
+					},
+					{
+						"name": "IsEmployee",
+						"type": "BOOLEAN"
+					},
+					{
+						"name": "IsSalesperson",
+						"type": "BOOLEAN"
+					},
+					{
+						"name": "UserPreferences",
+						"type": "UTF8"
+					},
+					{
+						"name": "PhoneNumber",
+						"type": "UTF8"
+					},
+					{
+						"name": "FaxNumber",
+						"type": "UTF8"
+					},
+					{
+						"name": "EmailAddress",
+						"type": "UTF8"
+					},
+					{
+						"name": "Photo",
+						"type": "BINARY"
+					},
+					{
+						"name": "CustomFields",
+						"type": "UTF8"
+					},
+					{
+						"name": "OtherLanguages",
+						"type": "UTF8"
+					},
+					{
+						"name": "LastEditedBy",
+						"type": "INT32"
+					},
+					{
+						"name": "ValidFrom",
+						"type": "INT96"
+					},
+					{
+						"name": "ValidTo",
+						"type": "INT96"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_wwiods_stockitems_parquet')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "ds_wwi_ods"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "ODS/StockItems",
+						"fileSystem": "wwi"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "StockItemID",
+						"type": "INT32"
+					},
+					{
+						"name": "StockItemName",
+						"type": "UTF8"
+					},
+					{
+						"name": "SupplierID",
+						"type": "INT32"
+					},
+					{
+						"name": "ColorID",
+						"type": "INT32"
+					},
+					{
+						"name": "UnitPackageID",
+						"type": "INT32"
+					},
+					{
+						"name": "OuterPackageID",
+						"type": "INT32"
+					},
+					{
+						"name": "Brand",
+						"type": "UTF8"
+					},
+					{
+						"name": "Size",
+						"type": "UTF8"
+					},
+					{
+						"name": "LeadTimeDays",
+						"type": "INT32"
+					},
+					{
+						"name": "QuantityPerOuter",
+						"type": "INT32"
+					},
+					{
+						"name": "IsChillerStock",
+						"type": "BOOLEAN"
+					},
+					{
+						"name": "Barcode",
+						"type": "UTF8"
+					},
+					{
+						"name": "TaxRate",
+						"type": "DECIMAL",
+						"precision": 18,
+						"scale": 3
+					},
+					{
+						"name": "UnitPrice",
+						"type": "DECIMAL",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "RecommendedRetailPrice",
+						"type": "DECIMAL",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "TypicalWeightPerUnit",
+						"type": "DECIMAL",
+						"precision": 18,
+						"scale": 3
+					},
+					{
+						"name": "MarketingComments",
+						"type": "UTF8"
+					},
+					{
+						"name": "InternalComments",
+						"type": "UTF8"
+					},
+					{
+						"name": "Photo",
+						"type": "BINARY"
+					},
+					{
+						"name": "CustomFields",
+						"type": "UTF8"
+					},
+					{
+						"name": "Tags",
+						"type": "UTF8"
+					},
+					{
+						"name": "SearchDetails",
+						"type": "UTF8"
+					},
+					{
+						"name": "LastEditedBy",
+						"type": "INT32"
+					},
+					{
+						"name": "ValidFrom",
+						"type": "INT96"
+					},
+					{
+						"name": "ValidTo",
+						"type": "INT96"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/ds_wwiods_tableList')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -3056,164 +3765,6 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/ds_movie_bronze_parquet')]",
 				"[concat(variables('factoryId'), '/datasets/ds_movie_silver_parquet')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ds_wwiods_customers_parquet')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureDataLakeStorage1",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "ds_wwi_ods"
-				},
-				"annotations": [],
-				"type": "Parquet",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"fileName": "Customers",
-						"folderPath": "ODS",
-						"fileSystem": "wwi"
-					},
-					"compressionCodec": "snappy"
-				},
-				"schema": [
-					{
-						"name": "CustomerID",
-						"type": "INT32"
-					},
-					{
-						"name": "CustomerName",
-						"type": "UTF8"
-					},
-					{
-						"name": "BillToCustomerID",
-						"type": "INT32"
-					},
-					{
-						"name": "CustomerCategoryID",
-						"type": "INT32"
-					},
-					{
-						"name": "BuyingGroupID",
-						"type": "INT32"
-					},
-					{
-						"name": "PrimaryContactPersonID",
-						"type": "INT32"
-					},
-					{
-						"name": "AlternateContactPersonID",
-						"type": "INT32"
-					},
-					{
-						"name": "DeliveryMethodID",
-						"type": "INT32"
-					},
-					{
-						"name": "DeliveryCityID",
-						"type": "INT32"
-					},
-					{
-						"name": "PostalCityID",
-						"type": "INT32"
-					},
-					{
-						"name": "CreditLimit",
-						"type": "DECIMAL",
-						"precision": 18,
-						"scale": 2
-					},
-					{
-						"name": "AccountOpenedDate",
-						"type": "DATE"
-					},
-					{
-						"name": "StandardDiscountPercentage",
-						"type": "DECIMAL",
-						"precision": 18,
-						"scale": 3
-					},
-					{
-						"name": "IsStatementSent",
-						"type": "BOOLEAN"
-					},
-					{
-						"name": "IsOnCreditHold",
-						"type": "BOOLEAN"
-					},
-					{
-						"name": "PaymentDays",
-						"type": "INT32"
-					},
-					{
-						"name": "PhoneNumber",
-						"type": "UTF8"
-					},
-					{
-						"name": "FaxNumber",
-						"type": "UTF8"
-					},
-					{
-						"name": "DeliveryRun",
-						"type": "UTF8"
-					},
-					{
-						"name": "RunPosition",
-						"type": "UTF8"
-					},
-					{
-						"name": "WebsiteURL",
-						"type": "UTF8"
-					},
-					{
-						"name": "DeliveryAddressLine1",
-						"type": "UTF8"
-					},
-					{
-						"name": "DeliveryAddressLine2",
-						"type": "UTF8"
-					},
-					{
-						"name": "DeliveryPostalCode",
-						"type": "UTF8"
-					},
-					{
-						"name": "DeliveryLocation",
-						"type": "UTF8"
-					},
-					{
-						"name": "PostalAddressLine1",
-						"type": "UTF8"
-					},
-					{
-						"name": "PostalAddressLine2",
-						"type": "UTF8"
-					},
-					{
-						"name": "PostalPostalCode",
-						"type": "UTF8"
-					},
-					{
-						"name": "LastEditedBy",
-						"type": "INT32"
-					},
-					{
-						"name": "ValidFrom",
-						"type": "INT96"
-					},
-					{
-						"name": "ValidTo",
-						"type": "INT96"
-					}
-				]
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]"
 			]
 		}
 	]

@@ -768,80 +768,6 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/ds_wwiods_tableList')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureDataLakeStorage1",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "ds_wwi_ods"
-				},
-				"annotations": [],
-				"type": "Json",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"fileName": "tableList2.json",
-						"fileSystem": "wwi"
-					}
-				},
-				"schema": {
-					"type": "object",
-					"properties": {
-						"TABLE_NAME": {
-							"type": "string"
-						},
-						"WaterMark_Column": {
-							"type": "string"
-						},
-						"TableType": {
-							"type": "string"
-						},
-						"StoredProcedureNameForMergeOperation": {
-							"type": "string"
-						}
-					}
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ds_wwiods_watermark')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "WWISqlDatabaseODS",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "ds_wwi_ods"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [
-					{
-						"name": "TableName",
-						"type": "varchar"
-					},
-					{
-						"name": "WatermarkValue",
-						"type": "datetime",
-						"precision": 23,
-						"scale": 3
-					}
-				],
-				"typeProperties": {
-					"schema": "dbo",
-					"table": "watermarktable"
-				}
-			},
-			"dependsOn": []
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/ds_wwiods_customers_parquet')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -858,8 +784,7 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobFSLocation",
-						"fileName": "Customers",
-						"folderPath": "ODS",
+						"folderPath": "ODS/Customers",
 						"fileSystem": "wwi"
 					},
 					"compressionCodec": "snappy"
@@ -998,6 +923,623 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/ds_wwiods_invoices_parquet')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "ds_wwi_ods"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "ODS/Invoices",
+						"fileSystem": "wwi"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "InvoiceID",
+						"type": "INT32"
+					},
+					{
+						"name": "CustomerID",
+						"type": "INT32"
+					},
+					{
+						"name": "BillToCustomerID",
+						"type": "INT32"
+					},
+					{
+						"name": "OrderID",
+						"type": "INT32"
+					},
+					{
+						"name": "DeliveryMethodID",
+						"type": "INT32"
+					},
+					{
+						"name": "ContactPersonID",
+						"type": "INT32"
+					},
+					{
+						"name": "AccountsPersonID",
+						"type": "INT32"
+					},
+					{
+						"name": "SalespersonPersonID",
+						"type": "INT32"
+					},
+					{
+						"name": "PackedByPersonID",
+						"type": "INT32"
+					},
+					{
+						"name": "InvoiceDate",
+						"type": "DATE"
+					},
+					{
+						"name": "CustomerPurchaseOrderNumber",
+						"type": "UTF8"
+					},
+					{
+						"name": "IsCreditNote",
+						"type": "BOOLEAN"
+					},
+					{
+						"name": "CreditNoteReason",
+						"type": "UTF8"
+					},
+					{
+						"name": "Comments",
+						"type": "UTF8"
+					},
+					{
+						"name": "DeliveryInstructions",
+						"type": "UTF8"
+					},
+					{
+						"name": "InternalComments",
+						"type": "UTF8"
+					},
+					{
+						"name": "TotalDryItems",
+						"type": "INT32"
+					},
+					{
+						"name": "TotalChillerItems",
+						"type": "INT32"
+					},
+					{
+						"name": "DeliveryRun",
+						"type": "UTF8"
+					},
+					{
+						"name": "RunPosition",
+						"type": "UTF8"
+					},
+					{
+						"name": "ReturnedDeliveryData",
+						"type": "UTF8"
+					},
+					{
+						"name": "ConfirmedDeliveryTime",
+						"type": "INT96"
+					},
+					{
+						"name": "ConfirmedReceivedBy",
+						"type": "UTF8"
+					},
+					{
+						"name": "LastEditedBy",
+						"type": "INT32"
+					},
+					{
+						"name": "LastEditedWhen",
+						"type": "INT96"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_wwiods_orderlines_parquet')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "ds_wwi_ods"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "ODS/OrderLines",
+						"fileSystem": "wwi"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "OrderLineID",
+						"type": "INT32"
+					},
+					{
+						"name": "OrderID",
+						"type": "INT32"
+					},
+					{
+						"name": "StockItemID",
+						"type": "INT32"
+					},
+					{
+						"name": "Description",
+						"type": "UTF8"
+					},
+					{
+						"name": "PackageTypeID",
+						"type": "INT32"
+					},
+					{
+						"name": "Quantity",
+						"type": "INT32"
+					},
+					{
+						"name": "UnitPrice",
+						"type": "DECIMAL",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "TaxRate",
+						"type": "DECIMAL",
+						"precision": 18,
+						"scale": 3
+					},
+					{
+						"name": "PickedQuantity",
+						"type": "INT32"
+					},
+					{
+						"name": "PickingCompletedWhen",
+						"type": "INT96"
+					},
+					{
+						"name": "LastEditedBy",
+						"type": "INT32"
+					},
+					{
+						"name": "LastEditedWhen",
+						"type": "INT96"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_wwiods_orders_parquet')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "ds_wwi_ods"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "ODS/Orders",
+						"fileSystem": "wwi"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "OrderID",
+						"type": "INT32"
+					},
+					{
+						"name": "CustomerID",
+						"type": "INT32"
+					},
+					{
+						"name": "SalespersonPersonID",
+						"type": "INT32"
+					},
+					{
+						"name": "PickedByPersonID",
+						"type": "INT32"
+					},
+					{
+						"name": "ContactPersonID",
+						"type": "INT32"
+					},
+					{
+						"name": "BackorderOrderID",
+						"type": "INT32"
+					},
+					{
+						"name": "OrderDate",
+						"type": "DATE"
+					},
+					{
+						"name": "ExpectedDeliveryDate",
+						"type": "DATE"
+					},
+					{
+						"name": "CustomerPurchaseOrderNumber",
+						"type": "UTF8"
+					},
+					{
+						"name": "IsUndersupplyBackordered",
+						"type": "BOOLEAN"
+					},
+					{
+						"name": "Comments",
+						"type": "UTF8"
+					},
+					{
+						"name": "DeliveryInstructions",
+						"type": "UTF8"
+					},
+					{
+						"name": "InternalComments",
+						"type": "UTF8"
+					},
+					{
+						"name": "PickingCompletedWhen",
+						"type": "INT96"
+					},
+					{
+						"name": "LastEditedBy",
+						"type": "INT32"
+					},
+					{
+						"name": "LastEditedWhen",
+						"type": "INT96"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_wwiods_people_parquet')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "ds_wwi_ods"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "ODS/People",
+						"fileSystem": "wwi"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "PersonID",
+						"type": "INT32"
+					},
+					{
+						"name": "FullName",
+						"type": "UTF8"
+					},
+					{
+						"name": "PreferredName",
+						"type": "UTF8"
+					},
+					{
+						"name": "SearchName",
+						"type": "UTF8"
+					},
+					{
+						"name": "IsPermittedToLogon",
+						"type": "BOOLEAN"
+					},
+					{
+						"name": "LogonName",
+						"type": "UTF8"
+					},
+					{
+						"name": "IsExternalLogonProvider",
+						"type": "BOOLEAN"
+					},
+					{
+						"name": "HashedPassword",
+						"type": "BINARY"
+					},
+					{
+						"name": "IsSystemUser",
+						"type": "BOOLEAN"
+					},
+					{
+						"name": "IsEmployee",
+						"type": "BOOLEAN"
+					},
+					{
+						"name": "IsSalesperson",
+						"type": "BOOLEAN"
+					},
+					{
+						"name": "UserPreferences",
+						"type": "UTF8"
+					},
+					{
+						"name": "PhoneNumber",
+						"type": "UTF8"
+					},
+					{
+						"name": "FaxNumber",
+						"type": "UTF8"
+					},
+					{
+						"name": "EmailAddress",
+						"type": "UTF8"
+					},
+					{
+						"name": "Photo",
+						"type": "BINARY"
+					},
+					{
+						"name": "CustomFields",
+						"type": "UTF8"
+					},
+					{
+						"name": "OtherLanguages",
+						"type": "UTF8"
+					},
+					{
+						"name": "LastEditedBy",
+						"type": "INT32"
+					},
+					{
+						"name": "ValidFrom",
+						"type": "INT96"
+					},
+					{
+						"name": "ValidTo",
+						"type": "INT96"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_wwiods_stockitems_parquet')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "ds_wwi_ods"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "ODS/StockItems",
+						"fileSystem": "wwi"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "StockItemID",
+						"type": "INT32"
+					},
+					{
+						"name": "StockItemName",
+						"type": "UTF8"
+					},
+					{
+						"name": "SupplierID",
+						"type": "INT32"
+					},
+					{
+						"name": "ColorID",
+						"type": "INT32"
+					},
+					{
+						"name": "UnitPackageID",
+						"type": "INT32"
+					},
+					{
+						"name": "OuterPackageID",
+						"type": "INT32"
+					},
+					{
+						"name": "Brand",
+						"type": "UTF8"
+					},
+					{
+						"name": "Size",
+						"type": "UTF8"
+					},
+					{
+						"name": "LeadTimeDays",
+						"type": "INT32"
+					},
+					{
+						"name": "QuantityPerOuter",
+						"type": "INT32"
+					},
+					{
+						"name": "IsChillerStock",
+						"type": "BOOLEAN"
+					},
+					{
+						"name": "Barcode",
+						"type": "UTF8"
+					},
+					{
+						"name": "TaxRate",
+						"type": "DECIMAL",
+						"precision": 18,
+						"scale": 3
+					},
+					{
+						"name": "UnitPrice",
+						"type": "DECIMAL",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "RecommendedRetailPrice",
+						"type": "DECIMAL",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "TypicalWeightPerUnit",
+						"type": "DECIMAL",
+						"precision": 18,
+						"scale": 3
+					},
+					{
+						"name": "MarketingComments",
+						"type": "UTF8"
+					},
+					{
+						"name": "InternalComments",
+						"type": "UTF8"
+					},
+					{
+						"name": "Photo",
+						"type": "BINARY"
+					},
+					{
+						"name": "CustomFields",
+						"type": "UTF8"
+					},
+					{
+						"name": "Tags",
+						"type": "UTF8"
+					},
+					{
+						"name": "SearchDetails",
+						"type": "UTF8"
+					},
+					{
+						"name": "LastEditedBy",
+						"type": "INT32"
+					},
+					{
+						"name": "ValidFrom",
+						"type": "INT96"
+					},
+					{
+						"name": "ValidTo",
+						"type": "INT96"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_wwiods_tableList')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "ds_wwi_ods"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "tableList2.json",
+						"fileSystem": "wwi"
+					}
+				},
+				"schema": {
+					"type": "object",
+					"properties": {
+						"TABLE_NAME": {
+							"type": "string"
+						},
+						"WaterMark_Column": {
+							"type": "string"
+						},
+						"TableType": {
+							"type": "string"
+						},
+						"StoredProcedureNameForMergeOperation": {
+							"type": "string"
+						}
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_wwiods_watermark')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "WWISqlDatabaseODS",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "ds_wwi_ods"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "TableName",
+						"type": "varchar"
+					},
+					{
+						"name": "WatermarkValue",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "watermarktable"
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/pl_ods_parquet')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -1111,7 +1653,7 @@
 											"referenceName": "SinkParquet",
 											"type": "DatasetReference",
 											"parameters": {
-												"fileName": {
+												"folderName": {
 													"value": "@{item().SinkTableName}",
 													"type": "Expression"
 												}
@@ -1811,295 +2353,6 @@
 				}
 			},
 			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/pl_bronze_to_silver')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "dataflow_b2s",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "dataflow_b2s",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"bronzeParquet": {
-										"containerName": "parquetmovies",
-										"directoryName": "movie_bronze_parquet"
-									},
-									"cleanSilver": {
-										"containerName": "parquetmovies",
-										"directoryName": "movie_silver_parquet"
-									},
-									"bronzeUpdate": {
-										"containerName": "parquetmovies",
-										"directoryName": "movie_bronze_parquet"
-									},
-									"languageSilver": {},
-									"genresSilver": {
-										"containerName": "parquetmovies",
-										"directoryName": "genre_silver_parquet"
-									},
-									"sinkJunctionMoviesGenres": {}
-								},
-								"linkedServiceParameters": {
-									"bronzeUpdate": {
-										"schemaLinkedService": {
-											"containerName": "parquetmovies",
-											"directoryName": "movie_bronze_parquet"
-										}
-									}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					},
-					{
-						"name": "dataflow_repair",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [
-							{
-								"activity": "dataflow_b2s",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "dataflow_repair",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"bronzeParquet": {
-										"containerName": "parquetmovies",
-										"directoryName": "movie_bronze_parquet"
-									},
-									"bronzeUpdate": {
-										"containerName": "parquetmovies",
-										"directoryName": "movie_bronze_parquet"
-									},
-									"silverInsert": {
-										"containerName": "parquetmovies",
-										"directoryName": "movie_silver_parquet"
-									}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
-				},
-				"folder": {
-					"name": "pl_movie"
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/dataflows/dataflow_b2s')]",
-				"[concat(variables('factoryId'), '/dataflows/dataflow_repair')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/pl_raw_to_bronze')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "dataflow_r2b",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "dataflow_r2b",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"raw": {
-										"containerName": "jsonmovies"
-									},
-									"bronze": {
-										"containerName": "parquetmovies",
-										"directoryName": "movie_bronze_parquet"
-									}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
-				},
-				"folder": {
-					"name": "pl_movie"
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/dataflows/dataflow_r2b')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/pl_wwi_master')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "pl_oltp_to_ods_auto",
-						"type": "ExecutePipeline",
-						"dependsOn": [],
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "pl_oltp_to_ods_auto",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {}
-						}
-					},
-					{
-						"name": "pl_ods_parquet",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "pl_oltp_to_ods_auto",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "pl_ods_parquet",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {}
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
-				},
-				"folder": {
-					"name": "pl_wwi"
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/pl_oltp_to_ods_auto')]",
-				"[concat(variables('factoryId'), '/pipelines/pl_ods_parquet')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/pl_movies')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "pl_raw_to_bronze",
-						"type": "ExecutePipeline",
-						"dependsOn": [],
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "pl_raw_to_bronze",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {}
-						}
-					},
-					{
-						"name": "pl_bronze_to_silver",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "pl_raw_to_bronze",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "pl_bronze_to_silver",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {}
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
-				},
-				"folder": {
-					"name": "pl_movie"
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/pl_raw_to_bronze')]",
-				"[concat(variables('factoryId'), '/pipelines/pl_bronze_to_silver')]"
-			]
 		}
 	]
 }
