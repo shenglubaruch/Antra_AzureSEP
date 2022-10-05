@@ -366,7 +366,8 @@
 			"properties": {
 				"activities": [
 					{
-						"name": "Data flow1",
+						"name": "ODS_to_Integration_Parquet",
+						"description": "Store Parquet Files in Storage Account",
 						"type": "ExecuteDataFlow",
 						"dependsOn": [],
 						"policy": {
@@ -404,6 +405,10 @@
 									"sinkOrdersFact": {
 										"containerName": "wwi",
 										"directoryName": "Integration/orders_Integration_parquet"
+									},
+									"sinkSalesFact": {
+										"containerName": "wwi",
+										"directoryName": "Integration/sales_Integration_parquet(Invoices))"
 									}
 								}
 							},
@@ -774,6 +779,27 @@
 							"waitOnCompletion": true,
 							"parameters": {}
 						}
+					},
+					{
+						"name": "pl_ods_to_integration",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "pl_ods_parquet",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "pl_ods_to_integration",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
 					}
 				],
 				"policy": {
@@ -787,7 +813,8 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/pipelines/pl_oltp_to_ods_auto')]",
-				"[concat(variables('factoryId'), '/pipelines/pl_ods_parquet')]"
+				"[concat(variables('factoryId'), '/pipelines/pl_ods_parquet')]",
+				"[concat(variables('factoryId'), '/pipelines/pl_ods_to_integration')]"
 			]
 		},
 		{
@@ -4180,6 +4207,13 @@
 								"type": "DatasetReference"
 							},
 							"name": "sinkOrdersFact"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_wwiInte_sales_parquet",
+								"type": "DatasetReference"
+							},
+							"name": "sinkSalesFact"
 						}
 					],
 					"transformations": [
@@ -4215,6 +4249,9 @@
 						},
 						{
 							"name": "selectOrdersFact"
+						},
+						{
+							"name": "selectSales"
 						}
 					],
 					"scriptLines": [
@@ -4503,6 +4540,32 @@
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> selectOrdersFact",
+						"InvoicesParquet select(mapColumn(",
+						"          InvoiceID,",
+						"          CustomerID,",
+						"          BillToCustomerID,",
+						"          OrderID,",
+						"          DeliveryMethodID,",
+						"          ContactPersonID,",
+						"          AccountsPersonID,",
+						"          SalespersonPersonID,",
+						"          PackedByPersonID,",
+						"          InvoiceDate,",
+						"          CustomerPurchaseOrderNumber,",
+						"          IsCreditNote,",
+						"          CreditNoteReason,",
+						"          Comments,",
+						"          DeliveryInstructions,",
+						"          InternalComments,",
+						"          TotalDryItems,",
+						"          ReturnedDeliveryData,",
+						"          ConfirmedDeliveryTime,",
+						"          ConfirmedReceivedBy,",
+						"          LastEditedBy,",
+						"          LastEditedWhen",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectSales",
 						"selectCustomersInte sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
@@ -4567,7 +4630,15 @@
 						"     preCommands: [],",
 						"     postCommands: [],",
 						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> sinkOrdersFact"
+						"     skipDuplicateMapOutputs: true) ~> sinkOrdersFact",
+						"selectSales sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'parquet',",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> sinkSalesFact"
 					]
 				}
 			},
@@ -4581,7 +4652,8 @@
 				"[concat(variables('factoryId'), '/datasets/ds_wwiInte_customers_parquet')]",
 				"[concat(variables('factoryId'), '/datasets/ds_wwiInte_employee_parquet')]",
 				"[concat(variables('factoryId'), '/datasets/ds_wwiInte_stockitems_parquet')]",
-				"[concat(variables('factoryId'), '/datasets/ds_wwiInte_orders_parquet')]"
+				"[concat(variables('factoryId'), '/datasets/ds_wwiInte_orders_parquet')]",
+				"[concat(variables('factoryId'), '/datasets/ds_wwiInte_sales_parquet')]"
 			]
 		},
 		{
@@ -4610,7 +4682,15 @@
 				"type": "Parquet",
 				"typeProperties": {
 					"location": {
-						"type": "AzureBlobFSLocation"
+						"type": "AzureBlobFSLocation",
+						"folderPath": {
+							"value": "@dataset().directoryName",
+							"type": "Expression"
+						},
+						"fileSystem": {
+							"value": "@dataset().containerName",
+							"type": "Expression"
+						}
 					},
 					"compressionCodec": "snappy"
 				},
@@ -4646,7 +4726,15 @@
 				"type": "Parquet",
 				"typeProperties": {
 					"location": {
-						"type": "AzureBlobFSLocation"
+						"type": "AzureBlobFSLocation",
+						"folderPath": {
+							"value": "@dataset().directoryName",
+							"type": "Expression"
+						},
+						"fileSystem": {
+							"value": "@dataset().containerName",
+							"type": "Expression"
+						}
 					},
 					"compressionCodec": "snappy"
 				},
