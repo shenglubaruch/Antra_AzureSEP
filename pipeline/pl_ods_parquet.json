@@ -109,7 +109,7 @@
 									"referenceName": "SinkParquet",
 									"type": "DatasetReference",
 									"parameters": {
-										"fileName": {
+										"folderName": {
 											"value": "@{item().SinkTableName}",
 											"type": "Expression"
 										}

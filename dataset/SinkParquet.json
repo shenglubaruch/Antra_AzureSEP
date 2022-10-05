@@ -6,7 +6,7 @@
 			"type": "LinkedServiceReference"
 		},
 		"parameters": {
-			"fileName": {
+			"folderName": {
 				"type": "string"
 			}
 		},
@@ -18,11 +18,10 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"fileName": {
-					"value": "@dataset().fileName",
+				"folderPath": {
+					"value": "ODS/@{dataset().folderName}",
 					"type": "Expression"
 				},
-				"folderPath": "ODS",
 				"fileSystem": "wwi"
 			},
 			"compressionCodec": "snappy"
