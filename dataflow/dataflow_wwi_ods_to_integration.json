@@ -57,6 +57,13 @@
 						"type": "DatasetReference"
 					},
 					"name": "sinkCustomersIntegration"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_wwiInte_Employee_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "sinkEmployee"
 				}
 			],
 			"transformations": [
@@ -71,6 +78,12 @@
 				},
 				{
 					"name": "selectCustomersInte"
+				},
+				{
+					"name": "filterEmployee"
+				},
+				{
+					"name": "selectEmployee"
 				}
 			],
 			"scriptLines": [
@@ -264,10 +277,10 @@
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> joinBillCustomers",
 				"joinBillCustomers select(mapColumn(",
-				"          CustomerID = selectCustomers@CustomerID,",
-				"          CustomerName = selectCustomers@CustomerName,",
+				"          {WWI CustomerID} = selectCustomers@CustomerID,",
+				"          Customer = selectCustomers@CustomerName,",
 				"          BillToCustomerID = selectCustomers@BillToCustomerID,",
-				"          BillToCustomerName = CustomersParquet@CustomerName,",
+				"          BillToCustomer = CustomersParquet@CustomerName,",
 				"          CustomerCategoryID = selectCustomers@CustomerCategoryID,",
 				"          BuyingGroupID = selectCustomers@BuyingGroupID,",
 				"          PostalCode,",
@@ -276,6 +289,19 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> selectCustomersInte",
+				"PeopleParquet filter(IsEmployee == true()) ~> filterEmployee",
+				"filterEmployee select(mapColumn(",
+				"          {WWI PersonID} = PersonID,",
+				"          Employee = FullName,",
+				"          {Preferred Name} = PreferredName,",
+				"          {Is Salesperson} = IsSalesperson,",
+				"          PhoneNumber,",
+				"          Photo,",
+				"          ValidFrom,",
+				"          ValidTo",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectEmployee",
 				"selectCustomersInte sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
@@ -316,7 +342,15 @@
 				"     preCommands: [],",
 				"     postCommands: [],",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> sinkCustomersIntegration"
+				"     skipDuplicateMapOutputs: true) ~> sinkCustomersIntegration",
+				"selectEmployee sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'parquet',",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sinkEmployee"
 			]
 		}
 	}
