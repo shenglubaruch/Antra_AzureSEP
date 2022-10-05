@@ -13,7 +13,7 @@
 	},
 	"resources": [
 		{
-			"name": "[concat(parameters('factoryName'), '/pl_ods_parquet')]",
+			"name": "[concat(parameters('factoryName'), '/pl_ods_to_parquet')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -1683,7 +1683,7 @@
 						"userProperties": [],
 						"typeProperties": {
 							"pipeline": {
-								"referenceName": "pl_ods_parquet",
+								"referenceName": "pl_ods_to_parquet",
 								"type": "PipelineReference"
 							},
 							"waitOnCompletion": true,
@@ -1723,7 +1723,7 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/pipelines/pl_oltp_to_ods_auto')]",
-				"[concat(variables('factoryId'), '/pipelines/pl_ods_parquet')]",
+				"[concat(variables('factoryId'), '/pipelines/pl_ods_to_parquet')]",
 				"[concat(variables('factoryId'), '/pipelines/pl_ods_to_integration')]"
 			]
 		}
