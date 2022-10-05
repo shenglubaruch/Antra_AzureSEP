@@ -13,6 +13,1291 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/pl_ods_parquet')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Lookup_tableList",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "JsonSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "JsonReadSettings"
+								}
+							},
+							"dataset": {
+								"referenceName": "ds_wwiods_tableList",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "iterateSQLTablesODS",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Lookup_tableList",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Lookup_tableList').output.value",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Copy data1",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "AzureSqlSource",
+											"sqlReaderQuery": {
+												"value": "select * from dbo.@{item().SinkTableName}",
+												"type": "Expression"
+											},
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"sink": {
+											"type": "ParquetSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "ParquetWriteSettings"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "SinkDataset",
+											"type": "DatasetReference",
+											"parameters": {
+												"SinkTableName": {
+													"value": "@{item().SinkTableName}",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "SinkParquet",
+											"type": "DatasetReference",
+											"parameters": {
+												"folderName": {
+													"value": "@{item().SinkTableName}",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "pl_wwi"
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_oltp_to_ods_auto')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "iterateSQLTables",
+						"description": "Customers(Sales), Invoices(Sales), Orders(Sales), OrderLines(Sales), People(Application), StockItems(WareHouse)",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Lookup_tableList",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Lookup_tableList').output.value",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "LookupOldWaterMarkActivity",
+									"type": "Lookup",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "AzureSqlSource",
+											"sqlReaderQuery": {
+												"value": "select * from watermarktable where TableName  =  '@{item().TABLE_NAME}'\n",
+												"type": "Expression"
+											},
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"dataset": {
+											"referenceName": "ds_wwiods_watermark",
+											"type": "DatasetReference",
+											"parameters": {}
+										},
+										"firstRowOnly": true
+									}
+								},
+								{
+									"name": "LookupNewWaterMarkActivity",
+									"type": "Lookup",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "SqlServerSource",
+											"sqlReaderQuery": {
+												"value": "select MAX(@{item().WaterMark_Column}) as NewWatermarkvalue from @{item().TABLE_NAME}",
+												"type": "Expression"
+											},
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"dataset": {
+											"referenceName": "SourceDataset",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									}
+								},
+								{
+									"name": "Copy data1",
+									"type": "Copy",
+									"dependsOn": [
+										{
+											"activity": "LookupNewWaterMarkActivity",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										},
+										{
+											"activity": "LookupOldWaterMarkActivity",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "SqlServerSource",
+											"sqlReaderQuery": {
+												"value": "select * from @{item().TABLE_NAME} where @{item().WaterMark_Column} > '@{activity('LookupOldWaterMarkActivity').output.firstRow.WatermarkValue}' and @{item().WaterMark_Column} <= '@{activity('LookupNewWaterMarkActivity').output.firstRow.NewWatermarkvalue}'",
+												"type": "Expression"
+											},
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"sink": {
+											"type": "AzureSqlSink",
+											"sqlWriterStoredProcedureName": {
+												"value": "@{item().StoredProcedureNameForMergeOperation}",
+												"type": "Expression"
+											},
+											"sqlWriterTableType": {
+												"value": "@{item().TableType}",
+												"type": "Expression"
+											},
+											"storedProcedureTableTypeParameterName": {
+												"value": "@{item().parameterName}",
+												"type": "Expression"
+											},
+											"disableMetricsCollection": false
+										},
+										"enableStaging": false
+									},
+									"inputs": [
+										{
+											"referenceName": "SourceDataset",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "SinkDataset",
+											"type": "DatasetReference",
+											"parameters": {
+												"SinkTableName": "@{item().SinkTableName}"
+											}
+										}
+									]
+								},
+								{
+									"name": "StoredProceduretoWriteWatermarkActivity",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [
+										{
+											"activity": "Copy data1",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "[[dbo].[usp_write_watermark]",
+										"storedProcedureParameters": {
+											"LastModifiedtime": {
+												"value": {
+													"value": "@{activity('LookupNewWaterMarkActivity').output.firstRow.NewWatermarkvalue}",
+													"type": "Expression"
+												},
+												"type": "DateTime"
+											},
+											"TableName": {
+												"value": {
+													"value": "@{activity('LookupOldWaterMarkActivity').output.firstRow.TableName}",
+													"type": "Expression"
+												},
+												"type": "String"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "WWISqlDatabaseODS",
+										"type": "LinkedServiceReference"
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "Lookup_tableList",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "JsonSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "JsonReadSettings"
+								}
+							},
+							"dataset": {
+								"referenceName": "ds_wwiods_tableList",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"firstRowOnly": false
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "pl_wwi"
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_b2s')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "dataflow_movie"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_movie_bronze_parquet",
+								"type": "DatasetReference"
+							},
+							"name": "bronzeParquet"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_movie_silver_parquet",
+								"type": "DatasetReference"
+							},
+							"name": "cleanSilver"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_movie_bronze_parquet",
+								"type": "DatasetReference"
+							},
+							"name": "bronzeUpdate"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_orilanguage_silver_parquet",
+								"type": "DatasetReference"
+							},
+							"name": "languageSilver"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_genre_silver_parquet",
+								"type": "DatasetReference"
+							},
+							"name": "genresSilver"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_movie_genres_silver_parquet",
+								"type": "DatasetReference"
+							},
+							"name": "sinkJunctionMoviesGenres"
+						}
+					],
+					"transformations": [
+						{
+							"name": "filterStatusNew"
+						},
+						{
+							"name": "split1"
+						},
+						{
+							"name": "changeStatusPostive"
+						},
+						{
+							"name": "changeStatusNegative"
+						},
+						{
+							"name": "unionPN"
+						},
+						{
+							"name": "selectSilver"
+						},
+						{
+							"name": "selectLangague"
+						},
+						{
+							"name": "aggregateLanguage"
+						},
+						{
+							"name": "surrogateKey1"
+						},
+						{
+							"name": "flattenGenres"
+						},
+						{
+							"name": "aggrGenres"
+						},
+						{
+							"name": "selectGenres"
+						},
+						{
+							"name": "selectJunction"
+						},
+						{
+							"name": "flattenJunction"
+						},
+						{
+							"name": "junctionMoviesGenres"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          Id as short,",
+						"          Title as string,",
+						"          Overview as string,",
+						"          OriginalLanguage as string,",
+						"          Price as double,",
+						"          ReleaseDate as string,",
+						"          Budget as double,",
+						"          Revenue as double,",
+						"          RunTime as short,",
+						"          Tagline as string,",
+						"          ImdbUrl as string,",
+						"          TmdbUrl as string,",
+						"          PosterUrl as string,",
+						"          BackdropUrl as string,",
+						"          CreatedDate as string,",
+						"          CreatedBy as string,",
+						"          UpdatedDate as string,",
+						"          UpdatedBy as string,",
+						"          genres as (id as short, name as string)[],",
+						"          Status as string,",
+						"          ingestTime as timestamp,",
+						"          ingestDate as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     limit: 100,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> bronzeParquet",
+						"bronzeParquet filter(Status=='New') ~> filterStatusNew",
+						"filterStatusNew split(RunTime>=0,",
+						"     disjoint: false) ~> split1@(runtimePostive, runtimeNegative)",
+						"split1@runtimePostive derive(Status = 'Loaded') ~> changeStatusPostive",
+						"split1@runtimeNegative derive(Status = 'Quarantined') ~> changeStatusNegative",
+						"changeStatusPostive, changeStatusNegative union(byName: true)~> unionPN",
+						"changeStatusPostive select(mapColumn(",
+						"          Id,",
+						"          Title,",
+						"          Overview,",
+						"          OriginalLanguage,",
+						"          Price,",
+						"          ReleaseDate,",
+						"          Budget,",
+						"          Revenue,",
+						"          RunTime,",
+						"          Tagline,",
+						"          ImdbUrl,",
+						"          TmdbUrl,",
+						"          PosterUrl,",
+						"          BackdropUrl,",
+						"          CreatedDate,",
+						"          CreatedBy,",
+						"          UpdatedDate,",
+						"          UpdatedBy",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectSilver",
+						"bronzeParquet select(mapColumn(",
+						"          OriginalLanguage",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectLangague",
+						"selectLangague aggregate(groupBy(OriginalLanguage),",
+						"     each(match(name!='OriginalLanguage'), $$ = first($$))) ~> aggregateLanguage",
+						"aggregateLanguage keyGenerate(output(LanguageCode as long),",
+						"     startAt: 1L,",
+						"     stepValue: 1L) ~> surrogateKey1",
+						"selectGenres foldDown(unroll(genres),",
+						"     mapColumn(",
+						"          genres_id = genres.id,",
+						"          name = genres.name",
+						"     ),",
+						"     skipDuplicateMapInputs: false,",
+						"     skipDuplicateMapOutputs: false) ~> flattenGenres",
+						"flattenGenres aggregate(groupBy(name),",
+						"     each(match(name!='name'), $$ = first($$))) ~> aggrGenres",
+						"bronzeParquet select(mapColumn(",
+						"          genres",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectGenres",
+						"bronzeParquet select(mapColumn(",
+						"          Id,",
+						"          genres",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectJunction",
+						"selectJunction foldDown(unroll(genres),",
+						"     mapColumn(",
+						"          Id,",
+						"          genres_id = genres.id,",
+						"          name = genres.name",
+						"     ),",
+						"     skipDuplicateMapInputs: false,",
+						"     skipDuplicateMapOutputs: false) ~> flattenJunction",
+						"flattenJunction select(mapColumn(",
+						"          movie_Id = Id,",
+						"          genres_Id = genres_id",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> junctionMoviesGenres",
+						"selectSilver sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'parquet',",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> cleanSilver",
+						"unionPN sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'parquet',",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> bronzeUpdate",
+						"surrogateKey1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'parquet',",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> languageSilver",
+						"aggrGenres sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'parquet',",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> genresSilver",
+						"junctionMoviesGenres sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'parquet',",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> sinkJunctionMoviesGenres"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_r2b')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "dataflow_movie"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_movie_raw_json",
+								"type": "DatasetReference"
+							},
+							"name": "raw"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_movie_bronze_parquet",
+								"type": "DatasetReference"
+							},
+							"name": "bronze"
+						}
+					],
+					"transformations": [
+						{
+							"name": "addMetadata"
+						},
+						{
+							"name": "flatten1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          movie as (BackdropUrl as string, Budget as double, CreatedBy as string, CreatedDate as string, Id as short, ImdbUrl as string, OriginalLanguage as string, Overview as string, PosterUrl as string, Price as double, ReleaseDate as string, Revenue as double, RunTime as short, Tagline as string, Title as string, TmdbUrl as string, UpdatedBy as string, UpdatedDate as string, genres as (id as short, name as string)[])[]",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     limit: 100,",
+						"     ignoreNoFilesFound: false,",
+						"     documentForm: 'arrayOfDocuments') ~> raw",
+						"flatten1 derive(Status = 'New',",
+						"          ingestTime = currentTimestamp(),",
+						"          ingestDate = dayOfMonth(currentTimestamp())) ~> addMetadata",
+						"raw foldDown(unroll(movie),",
+						"     mapColumn(",
+						"          Id = movie.Id,",
+						"          Title = movie.Title,",
+						"          Overview = movie.Overview,",
+						"          OriginalLanguage = movie.OriginalLanguage,",
+						"          Price = movie.Price,",
+						"          ReleaseDate = movie.ReleaseDate,",
+						"          Budget = movie.Budget,",
+						"          Revenue = movie.Revenue,",
+						"          RunTime = movie.RunTime,",
+						"          Tagline = movie.Tagline,",
+						"          ImdbUrl = movie.ImdbUrl,",
+						"          TmdbUrl = movie.TmdbUrl,",
+						"          PosterUrl = movie.PosterUrl,",
+						"          BackdropUrl = movie.BackdropUrl,",
+						"          CreatedDate = movie.CreatedDate,",
+						"          CreatedBy = movie.CreatedBy,",
+						"          UpdatedDate = movie.UpdatedDate,",
+						"          UpdatedBy = movie.UpdatedBy,",
+						"          genres = movie.genres",
+						"     ),",
+						"     skipDuplicateMapInputs: false,",
+						"     skipDuplicateMapOutputs: false) ~> flatten1",
+						"addMetadata sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'parquet',",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> bronze"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_repair')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "dataflow_movie"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_movie_bronze_parquet",
+								"type": "DatasetReference"
+							},
+							"name": "bronzeParquet"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_movie_bronze_parquet",
+								"type": "DatasetReference"
+							},
+							"name": "bronzeUpdate"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_movie_silver_parquet",
+								"type": "DatasetReference"
+							},
+							"name": "silverInsert"
+						}
+					],
+					"transformations": [
+						{
+							"name": "alterRow1"
+						},
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          Id as short,",
+						"          Title as string,",
+						"          Overview as string,",
+						"          OriginalLanguage as string,",
+						"          Price as double,",
+						"          ReleaseDate as string,",
+						"          Budget as double,",
+						"          Revenue as double,",
+						"          RunTime as short,",
+						"          Tagline as string,",
+						"          ImdbUrl as string,",
+						"          TmdbUrl as string,",
+						"          PosterUrl as string,",
+						"          BackdropUrl as string,",
+						"          CreatedDate as string,",
+						"          CreatedBy as string,",
+						"          UpdatedDate as string,",
+						"          UpdatedBy as string,",
+						"          Status as string,",
+						"          ingestTime as timestamp,",
+						"          ingestDate as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> bronzeParquet",
+						"bronzeParquet alterRow(updateIf(Status=='Quarantined')) ~> alterRow1",
+						"alterRow1 derive(RunTime = abs(RunTime)) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'parquet',",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> bronzeUpdate",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'parquet',",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> silverInsert"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_wwi_ods_to_integration')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "dataflow_wwi"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_wwiods_customers_parquet",
+								"type": "DatasetReference"
+							},
+							"name": "CustomersParquet"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_wwiods_people_parquet",
+								"type": "DatasetReference"
+							},
+							"name": "PeopleParquet"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_wwiods_invoices_parquet",
+								"type": "DatasetReference"
+							},
+							"name": "InvoicesParquet"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_wwiods_orderlines_parquet",
+								"type": "DatasetReference"
+							},
+							"name": "OrderLinesParquet"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_wwiods_orders_parquet",
+								"type": "DatasetReference"
+							},
+							"name": "OrdersParquet"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_wwiods_stockitems_parquet",
+								"type": "DatasetReference"
+							},
+							"name": "StockItems"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_wwiInte_customers_parquet",
+								"type": "DatasetReference"
+							},
+							"name": "sinkCustomers"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_wwiInte_employee_parquet",
+								"type": "DatasetReference"
+							},
+							"name": "sinkEmployee"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_wwiInte_stockitems_parquet",
+								"type": "DatasetReference"
+							},
+							"name": "sinkStockitems"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_wwiInte_orders_parquet",
+								"type": "DatasetReference"
+							},
+							"name": "sinkOrdersFact"
+						}
+					],
+					"transformations": [
+						{
+							"name": "joinPeople"
+						},
+						{
+							"name": "selectCustomers"
+						},
+						{
+							"name": "joinBillCustomers"
+						},
+						{
+							"name": "selectCustomersInte"
+						},
+						{
+							"name": "filterEmployee"
+						},
+						{
+							"name": "selectEmployee"
+						},
+						{
+							"name": "selectStockitems"
+						},
+						{
+							"name": "selectOrders"
+						},
+						{
+							"name": "selectOrderLines"
+						},
+						{
+							"name": "joinOrdersFact"
+						},
+						{
+							"name": "selectOrdersFact"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          CustomerID as integer,",
+						"          CustomerName as string,",
+						"          BillToCustomerID as integer,",
+						"          CustomerCategoryID as integer,",
+						"          BuyingGroupID as integer,",
+						"          PrimaryContactPersonID as integer,",
+						"          AlternateContactPersonID as integer,",
+						"          DeliveryMethodID as integer,",
+						"          DeliveryCityID as integer,",
+						"          PostalCityID as integer,",
+						"          CreditLimit as decimal(18,2),",
+						"          AccountOpenedDate as date,",
+						"          StandardDiscountPercentage as decimal(18,3),",
+						"          IsStatementSent as boolean,",
+						"          IsOnCreditHold as boolean,",
+						"          PaymentDays as integer,",
+						"          PhoneNumber as string,",
+						"          FaxNumber as string,",
+						"          DeliveryRun as string,",
+						"          RunPosition as string,",
+						"          WebsiteURL as string,",
+						"          DeliveryAddressLine1 as string,",
+						"          DeliveryAddressLine2 as string,",
+						"          DeliveryPostalCode as string,",
+						"          DeliveryLocation as string,",
+						"          PostalAddressLine1 as string,",
+						"          PostalAddressLine2 as string,",
+						"          PostalPostalCode as string,",
+						"          LastEditedBy as integer,",
+						"          ValidFrom as timestamp,",
+						"          ValidTo as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> CustomersParquet",
+						"source(output(",
+						"          PersonID as integer,",
+						"          FullName as string,",
+						"          PreferredName as string,",
+						"          SearchName as string,",
+						"          IsPermittedToLogon as boolean,",
+						"          LogonName as string,",
+						"          IsExternalLogonProvider as boolean,",
+						"          HashedPassword as binary,",
+						"          IsSystemUser as boolean,",
+						"          IsEmployee as boolean,",
+						"          IsSalesperson as boolean,",
+						"          UserPreferences as string,",
+						"          PhoneNumber as string,",
+						"          FaxNumber as string,",
+						"          EmailAddress as string,",
+						"          Photo as binary,",
+						"          CustomFields as string,",
+						"          OtherLanguages as string,",
+						"          LastEditedBy as integer,",
+						"          ValidFrom as timestamp,",
+						"          ValidTo as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> PeopleParquet",
+						"source(output(",
+						"          InvoiceID as integer,",
+						"          CustomerID as integer,",
+						"          BillToCustomerID as integer,",
+						"          OrderID as integer,",
+						"          DeliveryMethodID as integer,",
+						"          ContactPersonID as integer,",
+						"          AccountsPersonID as integer,",
+						"          SalespersonPersonID as integer,",
+						"          PackedByPersonID as integer,",
+						"          InvoiceDate as date,",
+						"          CustomerPurchaseOrderNumber as string,",
+						"          IsCreditNote as boolean,",
+						"          CreditNoteReason as string,",
+						"          Comments as string,",
+						"          DeliveryInstructions as string,",
+						"          InternalComments as string,",
+						"          TotalDryItems as integer,",
+						"          TotalChillerItems as integer,",
+						"          DeliveryRun as string,",
+						"          RunPosition as string,",
+						"          ReturnedDeliveryData as string,",
+						"          ConfirmedDeliveryTime as timestamp,",
+						"          ConfirmedReceivedBy as string,",
+						"          LastEditedBy as integer,",
+						"          LastEditedWhen as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> InvoicesParquet",
+						"source(output(",
+						"          OrderLineID as integer,",
+						"          OrderID as integer,",
+						"          StockItemID as integer,",
+						"          Description as string,",
+						"          PackageTypeID as integer,",
+						"          Quantity as integer,",
+						"          UnitPrice as decimal(18,2),",
+						"          TaxRate as decimal(18,3),",
+						"          PickedQuantity as integer,",
+						"          PickingCompletedWhen as timestamp,",
+						"          LastEditedBy as integer,",
+						"          LastEditedWhen as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> OrderLinesParquet",
+						"source(output(",
+						"          OrderID as integer,",
+						"          CustomerID as integer,",
+						"          SalespersonPersonID as integer,",
+						"          PickedByPersonID as integer,",
+						"          ContactPersonID as integer,",
+						"          BackorderOrderID as integer,",
+						"          OrderDate as date,",
+						"          ExpectedDeliveryDate as date,",
+						"          CustomerPurchaseOrderNumber as string,",
+						"          IsUndersupplyBackordered as boolean,",
+						"          Comments as string,",
+						"          DeliveryInstructions as string,",
+						"          InternalComments as string,",
+						"          PickingCompletedWhen as timestamp,",
+						"          LastEditedBy as integer,",
+						"          LastEditedWhen as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> OrdersParquet",
+						"source(output(",
+						"          StockItemID as integer,",
+						"          StockItemName as string,",
+						"          SupplierID as integer,",
+						"          ColorID as integer,",
+						"          UnitPackageID as integer,",
+						"          OuterPackageID as integer,",
+						"          Brand as string,",
+						"          Size as string,",
+						"          LeadTimeDays as integer,",
+						"          QuantityPerOuter as integer,",
+						"          IsChillerStock as boolean,",
+						"          Barcode as string,",
+						"          TaxRate as decimal(18,3),",
+						"          UnitPrice as decimal(18,2),",
+						"          RecommendedRetailPrice as decimal(18,2),",
+						"          TypicalWeightPerUnit as decimal(18,3),",
+						"          MarketingComments as string,",
+						"          InternalComments as string,",
+						"          Photo as binary,",
+						"          CustomFields as string,",
+						"          Tags as string,",
+						"          SearchDetails as string,",
+						"          LastEditedBy as integer,",
+						"          ValidFrom as timestamp,",
+						"          ValidTo as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> StockItems",
+						"CustomersParquet, PeopleParquet join(PrimaryContactPersonID == PersonID,",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinPeople",
+						"joinPeople select(mapColumn(",
+						"          CustomerID,",
+						"          CustomerName,",
+						"          BillToCustomerID,",
+						"          CustomerCategoryID,",
+						"          BuyingGroupID,",
+						"          PostalCode = DeliveryPostalCode,",
+						"          ValidFrom = CustomersParquet@ValidFrom,",
+						"          ValidTo = CustomersParquet@ValidTo,",
+						"          {Primary Contact} = FullName",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectCustomers",
+						"selectCustomers, CustomersParquet join(selectCustomers@BillToCustomerID == CustomersParquet@CustomerID,",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinBillCustomers",
+						"joinBillCustomers select(mapColumn(",
+						"          WWICustomerID = selectCustomers@CustomerID,",
+						"          Customer = selectCustomers@CustomerName,",
+						"          BillToCustomerID = selectCustomers@BillToCustomerID,",
+						"          BillToCustomer = CustomersParquet@CustomerName,",
+						"          CustomerCategoryID = selectCustomers@CustomerCategoryID,",
+						"          BuyingGroupID = selectCustomers@BuyingGroupID,",
+						"          PostalCode,",
+						"          ValidFrom = selectCustomers@ValidFrom,",
+						"          ValidTo = selectCustomers@ValidTo",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectCustomersInte",
+						"PeopleParquet filter(IsEmployee == true()) ~> filterEmployee",
+						"filterEmployee select(mapColumn(",
+						"          WWIPersonID = PersonID,",
+						"          Employee = FullName,",
+						"          PreferredName,",
+						"          IsSalesperson,",
+						"          PhoneNumber,",
+						"          Photo,",
+						"          ValidFrom,",
+						"          ValidTo",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectEmployee",
+						"StockItems select(mapColumn(",
+						"          WWIStockItemID = StockItemID,",
+						"          StockItem = StockItemName,",
+						"          ColorID,",
+						"          UnitPackageID,",
+						"          OuterPackageID,",
+						"          Brand,",
+						"          Size,",
+						"          LeadTimeDays,",
+						"          QuantityPerOuter,",
+						"          IsChillerStock,",
+						"          Barcode,",
+						"          TaxRate,",
+						"          UnitPrice,",
+						"          RecommendedRetailPrice,",
+						"          TypicalWeightPerUnit,",
+						"          Photo,",
+						"          ValidFrom,",
+						"          ValidTo",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectStockitems",
+						"OrdersParquet select(mapColumn(",
+						"          OrderID1 = OrderID,",
+						"          CustomerID,",
+						"          SalespersonPersonID,",
+						"          PickedByPersonID,",
+						"          BackorderOrderID,",
+						"          OrderDate,",
+						"          PickingCompletedWhen,",
+						"          LastEditedWhen",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectOrders",
+						"OrderLinesParquet select(mapColumn(",
+						"          OrderLineID,",
+						"          OrderID,",
+						"          StockItemID,",
+						"          Description,",
+						"          PackageTypeID,",
+						"          Quantity,",
+						"          UnitPrice,",
+						"          TaxRate,",
+						"          LastEditedBy",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectOrderLines",
+						"selectOrderLines, selectOrders join(OrderID == OrderID1,",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinOrdersFact",
+						"joinOrdersFact select(mapColumn(",
+						"          WWIOrderLineID = OrderLineID,",
+						"          WWIOrderID = OrderID,",
+						"          CustomerKey = CustomerID,",
+						"          StockItemKey = StockItemID,",
+						"          OrderDate,",
+						"          PickedDate = PickingCompletedWhen,",
+						"          SalespersonKey = SalespersonPersonID,",
+						"          PickerKey = PickedByPersonID,",
+						"          WWIBackorderID = BackorderOrderID,",
+						"          PackageTypeKey = PackageTypeID,",
+						"          Description,",
+						"          UnitPrice,",
+						"          Quantity,",
+						"          TaxRate",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectOrdersFact",
+						"selectCustomersInte sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          CustomerID as integer,",
+						"          CustomerName as string,",
+						"          BillToCustomerID as integer,",
+						"          CustomerCategoryID as integer,",
+						"          BuyingGroupID as integer,",
+						"          PrimaryContactPersonID as integer,",
+						"          AlternateContactPersonID as integer,",
+						"          DeliveryMethodID as integer,",
+						"          DeliveryCityID as integer,",
+						"          PostalCityID as integer,",
+						"          CreditLimit as decimal(18,2),",
+						"          AccountOpenedDate as date,",
+						"          StandardDiscountPercentage as decimal(18,3),",
+						"          IsStatementSent as boolean,",
+						"          IsOnCreditHold as boolean,",
+						"          PaymentDays as integer,",
+						"          PhoneNumber as string,",
+						"          FaxNumber as string,",
+						"          DeliveryRun as string,",
+						"          RunPosition as string,",
+						"          WebsiteURL as string,",
+						"          DeliveryAddressLine1 as string,",
+						"          DeliveryAddressLine2 as string,",
+						"          DeliveryPostalCode as string,",
+						"          DeliveryLocation as string,",
+						"          PostalAddressLine1 as string,",
+						"          PostalAddressLine2 as string,",
+						"          PostalPostalCode as string,",
+						"          LastEditedBy as integer,",
+						"          ValidFrom as timestamp,",
+						"          ValidTo as timestamp",
+						"     ),",
+						"     format: 'parquet',",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> sinkCustomers",
+						"selectEmployee sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'parquet',",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> sinkEmployee",
+						"selectStockitems sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'parquet',",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> sinkStockitems",
+						"selectOrdersFact sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'parquet',",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> sinkOrdersFact"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/pl_bronze_to_silver')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -129,7 +1414,80 @@
 				},
 				"annotations": []
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/dataflow_b2s')]",
+				"[concat(variables('factoryId'), '/dataflows/dataflow_repair')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_ods_to_integration')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Data flow1",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "dataflow_wwi_ods_to_integration",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"CustomersParquet": {},
+									"PeopleParquet": {},
+									"InvoicesParquet": {},
+									"OrderLinesParquet": {},
+									"OrdersParquet": {},
+									"StockItems": {},
+									"sinkCustomers": {
+										"containerName": "wwi",
+										"directoryName": "Integration/Customers_Integration_parquet"
+									},
+									"sinkEmployee": {
+										"containerName": "wwi",
+										"directoryName": "Integration/Employees_Integration_parquet"
+									},
+									"sinkStockitems": {
+										"containerName": "wwi",
+										"directoryName": "Integration/stockitems_Integration_parquet"
+									},
+									"sinkOrdersFact": {
+										"containerName": "wwi",
+										"directoryName": "Integration/orders_Integration_parquet"
+									}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "pl_wwi"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/dataflow_wwi_ods_to_integration')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/pl_raw_to_bronze')]",
@@ -182,7 +1540,9 @@
 				},
 				"annotations": []
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/dataflow_r2b')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/pl_wwi_master')]",
@@ -235,7 +1595,10 @@
 				},
 				"annotations": []
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/pl_oltp_to_ods_auto')]",
+				"[concat(variables('factoryId'), '/pipelines/pl_ods_parquet')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/pl_movies')]",
