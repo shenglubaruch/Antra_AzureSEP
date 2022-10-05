@@ -19,7 +19,7 @@
 						"referenceName": "dataflow_wwi_ods_to_integration",
 						"type": "DataFlowReference",
 						"datasetParameters": {
-							"sinkCustomersIntegration": {
+							"sinkCustomers": {
 								"containerName": "wwi",
 								"directoryName": "Integration/Customers_Integration_parquet"
 							},

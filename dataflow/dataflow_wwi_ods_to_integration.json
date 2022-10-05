@@ -78,6 +78,13 @@
 						"type": "DatasetReference"
 					},
 					"name": "sinkOrdersFact"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_wwiInte_sales_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "sinkSalesFact"
 				}
 			],
 			"transformations": [
@@ -113,6 +120,9 @@
 				},
 				{
 					"name": "selectOrdersFact"
+				},
+				{
+					"name": "selectSales"
 				}
 			],
 			"scriptLines": [
@@ -401,6 +411,32 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> selectOrdersFact",
+				"InvoicesParquet select(mapColumn(",
+				"          InvoiceID,",
+				"          CustomerID,",
+				"          BillToCustomerID,",
+				"          OrderID,",
+				"          DeliveryMethodID,",
+				"          ContactPersonID,",
+				"          AccountsPersonID,",
+				"          SalespersonPersonID,",
+				"          PackedByPersonID,",
+				"          InvoiceDate,",
+				"          CustomerPurchaseOrderNumber,",
+				"          IsCreditNote,",
+				"          CreditNoteReason,",
+				"          Comments,",
+				"          DeliveryInstructions,",
+				"          InternalComments,",
+				"          TotalDryItems,",
+				"          ReturnedDeliveryData,",
+				"          ConfirmedDeliveryTime,",
+				"          ConfirmedReceivedBy,",
+				"          LastEditedBy,",
+				"          LastEditedWhen",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectSales",
 				"selectCustomersInte sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
@@ -465,7 +501,15 @@
 				"     preCommands: [],",
 				"     postCommands: [],",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> sinkOrdersFact"
+				"     skipDuplicateMapOutputs: true) ~> sinkOrdersFact",
+				"selectSales sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'parquet',",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sinkSalesFact"
 			]
 		}
 	}
