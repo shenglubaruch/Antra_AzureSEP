@@ -1,5 +1,5 @@
 {
-	"name": "pl_ods_parquet",
+	"name": "pl_ods_to_parquet",
 	"properties": {
 		"activities": [
 			{
